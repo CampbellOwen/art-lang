@@ -1,3 +1,5 @@
+import { Expr, Symbol } from "./types";
+
 export type Ok<T> = { type: "ok"; value: T };
 export type Err<E> = { type: "error"; value: E };
 export type Result<T, E> = Ok<T> | Err<E>;
@@ -55,4 +57,8 @@ export class PeekableIterator<T> {
   pos(): number {
     return this.position;
   }
+}
+
+export function isSymbol(expr: Expr): expr is Symbol {
+  return expr.type === "symbol";
 }

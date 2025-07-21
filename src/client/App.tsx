@@ -4,14 +4,21 @@ import { useState } from "react";
 
 import reactLogo from "./assets/react.svg";
 import { parse } from "./lib/lang";
+import { evaluate, run } from "./lib/lang/interpreter";
+import { isOk } from "./lib/lang/core";
 
 function App() {
   const [count, setCount] = useState(0);
 
-  const input = '(42 "hello" world (+ 1 2))       ';
+  const input = "(+ 1 2)";
   const result = parse(input);
   console.log(input);
   console.log(result);
+
+  if (isOk(result)) {
+    const evaluated = run(result.value);
+    evaluated.forEach(console.log);
+  }
 
   return (
     <div className="App">
