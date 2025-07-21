@@ -1,7 +1,7 @@
 export type Expr =
-  | { type: "number"; value: number }
-  | { type: "string"; value: string }
-  | { type: "symbol"; value: string }
-  | { type: "list"; elements: Expr[] };
+  | { type: "number"; location: number; value: number }
+  | { type: "string"; location: number; value: string }
+  | { type: "symbol"; location: number; value: string }
+  | { type: "list"; location: number; elements: Expr[] };
 
 export type Program = Expr[];
