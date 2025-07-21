@@ -15,7 +15,7 @@ describe("Interpreter", () => {
   describe("evaluate basic expressions", () => {
     it("should evaluate number literals", () => {
       const environment = { symbolTable: new SymbolTable(), canvas };
-      const expr: Num = { type: "number", location: 0, value: 42 };
+      const expr: Num = { type: "number", value: 42 };
 
       const result = evaluate(environment, expr);
 
@@ -24,7 +24,7 @@ describe("Interpreter", () => {
 
     it("should evaluate string literals", () => {
       const environment = { symbolTable: new SymbolTable(), canvas };
-      const expr: Expr = { type: "string", location: 0, value: "hello" };
+      const expr: Expr = { type: "string", value: "hello" };
 
       const result = evaluate(environment, expr);
 
@@ -33,8 +33,8 @@ describe("Interpreter", () => {
 
     it("should evaluate symbols from symbol table", () => {
       const environment = { symbolTable: new SymbolTable(), canvas };
-      const symbol: Symbol = { type: "symbol", location: 0, value: "x" };
-      const value: Num = { type: "number", location: 0, value: 10 };
+      const symbol: Symbol = { type: "symbol", value: "x" };
+      const value: Num = { type: "number", value: 10 };
 
       environment.symbolTable.set(symbol, value);
 
@@ -47,7 +47,7 @@ describe("Interpreter", () => {
       const environment = { symbolTable: new SymbolTable(), canvas };
       const symbol: Symbol = {
         type: "symbol",
-        location: 0,
+
         value: "undefined",
       };
 
@@ -65,7 +65,7 @@ describe("Interpreter", () => {
       const program: List[] = [
         {
           type: "list",
-          location: 0,
+
           elements: [
             { type: "symbol", value: "+" },
             { type: "number", value: 2 },
@@ -77,7 +77,7 @@ describe("Interpreter", () => {
       const results = run(program, canvas);
 
       expect(results).toHaveLength(1);
-      expect(results[0]).toEqual(ok({ type: "number", location: 0, value: 5 }));
+      expect(results[0]).toEqual(ok({ type: "number", value: 5 }));
     });
 
     it("should add multiple numbers", () => {
@@ -104,26 +104,26 @@ describe("Interpreter", () => {
       const program: List[] = [
         {
           type: "list",
-          location: 0,
-          elements: [{ type: "symbol", location: 0, value: "+" }],
+
+          elements: [{ type: "symbol", value: "+" }],
         },
       ];
 
       const results = run(program, canvas);
 
       expect(results).toHaveLength(1);
-      expect(results[0]).toEqual(ok({ type: "number", location: 0, value: 0 }));
+      expect(results[0]).toEqual(ok({ type: "number", value: 0 }));
     });
 
     it("should add negative numbers", () => {
       const program: List[] = [
         {
           type: "list",
-          location: 0,
+
           elements: [
-            { type: "symbol", location: 0, value: "+" },
-            { type: "number", location: 0, value: -5 },
-            { type: "number", location: 0, value: 3 },
+            { type: "symbol", value: "+" },
+            { type: "number", value: -5 },
+            { type: "number", value: 3 },
           ],
         },
       ];
@@ -131,20 +131,18 @@ describe("Interpreter", () => {
       const results = run(program, canvas);
 
       expect(results).toHaveLength(1);
-      expect(results[0]).toEqual(
-        ok({ type: "number", location: 0, value: -2 }),
-      );
+      expect(results[0]).toEqual(ok({ type: "number", value: -2 }));
     });
 
     it("should add decimal numbers", () => {
       const program: List[] = [
         {
           type: "list",
-          location: 0,
+
           elements: [
-            { type: "symbol", location: 0, value: "+" },
-            { type: "number", location: 0, value: 1.5 },
-            { type: "number", location: 0, value: 2.3 },
+            { type: "symbol", value: "+" },
+            { type: "number", value: 1.5 },
+            { type: "number", value: 2.3 },
           ],
         },
       ];
@@ -152,51 +150,45 @@ describe("Interpreter", () => {
       const results = run(program, canvas);
 
       expect(results).toHaveLength(1);
-      expect(results[0]).toEqual(
-        ok({ type: "number", location: 0, value: 3.8 }),
-      );
+      expect(results[0]).toEqual(ok({ type: "number", value: 3.8 }));
     });
 
     it("should evaluate symbol arguments before adding", () => {
       const environment = { symbolTable: new SymbolTable(), canvas };
-      const xSymbol: Symbol = { type: "symbol", location: 0, value: "x" };
-      const ySymbol: Symbol = { type: "symbol", location: 0, value: "y" };
+      const xSymbol: Symbol = { type: "symbol", value: "x" };
+      const ySymbol: Symbol = { type: "symbol", value: "y" };
 
       environment.symbolTable.set(xSymbol, {
         type: "number",
-        location: 0,
+
         value: 10,
       });
       environment.symbolTable.set(ySymbol, {
         type: "number",
-        location: 0,
+
         value: 20,
       });
 
       const expr: List = {
         type: "list",
-        location: 0,
-        elements: [
-          { type: "symbol", location: 0, value: "+" },
-          xSymbol,
-          ySymbol,
-        ],
+
+        elements: [{ type: "symbol", value: "+" }, xSymbol, ySymbol],
       };
 
       const result = evaluate(environment, expr);
 
-      expect(result).toEqual(ok({ type: "number", location: 0, value: 30 }));
+      expect(result).toEqual(ok({ type: "number", value: 30 }));
     });
 
     it("should return error when adding non-numbers", () => {
       const program: List[] = [
         {
           type: "list",
-          location: 0,
+
           elements: [
-            { type: "symbol", location: 0, value: "+" },
-            { type: "number", location: 0, value: 5 },
-            { type: "string", location: 0, value: "hello" },
+            { type: "symbol", value: "+" },
+            { type: "number", value: 5 },
+            { type: "string", value: "hello" },
           ],
         },
       ];
@@ -214,20 +206,20 @@ describe("Interpreter", () => {
 
     it("should return error when symbol evaluates to non-number", () => {
       const environment = { symbolTable: new SymbolTable(), canvas };
-      const symbol: Symbol = { type: "symbol", location: 0, value: "text" };
+      const symbol: Symbol = { type: "symbol", value: "text" };
 
       environment.symbolTable.set(symbol, {
         type: "string",
-        location: 0,
+
         value: "not a number",
       });
 
       const expr: List = {
         type: "list",
-        location: 0,
+
         elements: [
-          { type: "symbol", location: 0, value: "+" },
-          { type: "number", location: 0, value: 5 },
+          { type: "symbol", value: "+" },
+          { type: "number", value: 5 },
           symbol,
         ],
       };
@@ -246,11 +238,11 @@ describe("Interpreter", () => {
       const program: List[] = [
         {
           type: "list",
-          location: 0,
+
           elements: [
-            { type: "symbol", location: 0, value: "+" },
-            { type: "number", location: 0, value: 5 },
-            { type: "symbol", location: 0, value: "undefined_var" },
+            { type: "symbol", value: "+" },
+            { type: "number", value: 5 },
+            { type: "symbol", value: "undefined_var" },
           ],
         },
       ];
@@ -270,7 +262,7 @@ describe("Interpreter", () => {
       const program: List[] = [
         {
           type: "list",
-          location: 0,
+
           elements: [],
         },
       ];
@@ -288,10 +280,10 @@ describe("Interpreter", () => {
       const program: List[] = [
         {
           type: "list",
-          location: 0,
+
           elements: [
-            { type: "symbol", location: 0, value: "unknown_function" },
-            { type: "number", location: 0, value: 1 },
+            { type: "symbol", value: "unknown_function" },
+            { type: "number", value: 1 },
           ],
         },
       ];
@@ -309,11 +301,11 @@ describe("Interpreter", () => {
       const program: List[] = [
         {
           type: "list",
-          location: 0,
+
           elements: [
-            { type: "symbol", location: 0, value: "-" },
-            { type: "number", location: 0, value: 5 },
-            { type: "number", location: 0, value: 3 },
+            { type: "symbol", value: "-" },
+            { type: "number", value: 5 },
+            { type: "number", value: 3 },
           ],
         },
       ];
@@ -333,29 +325,25 @@ describe("Interpreter", () => {
   describe("program execution", () => {
     it("should execute multiple expressions", () => {
       const program: Expr[] = [
-        { type: "number", location: 0, value: 42 },
+        { type: "number", value: 42 },
         {
           type: "list",
-          location: 0,
+
           elements: [
-            { type: "symbol", location: 0, value: "+" },
-            { type: "number", location: 0, value: 1 },
-            { type: "number", location: 0, value: 2 },
+            { type: "symbol", value: "+" },
+            { type: "number", value: 1 },
+            { type: "number", value: 2 },
           ],
         },
-        { type: "string", location: 0, value: "done" },
+        { type: "string", value: "done" },
       ];
 
       const results = run(program, canvas);
 
       expect(results).toHaveLength(3);
-      expect(results[0]).toEqual(
-        ok({ type: "number", location: 0, value: 42 }),
-      );
-      expect(results[1]).toEqual(ok({ type: "number", location: 0, value: 3 }));
-      expect(results[2]).toEqual(
-        ok({ type: "string", location: 0, value: "done" }),
-      );
+      expect(results[0]).toEqual(ok({ type: "number", value: 42 }));
+      expect(results[1]).toEqual(ok({ type: "number", value: 3 }));
+      expect(results[2]).toEqual(ok({ type: "string", value: "done" }));
     });
   });
 });

@@ -75,7 +75,7 @@ function evaluate_add(
   args: Expr[],
 ): Result<Expr, Error> {
   if (args.length === 0) {
-    const result: Num = { type: "number", location: 0, value: 0 };
+    const result: Num = { type: "number", value: 0 };
     return ok(result);
   }
 
@@ -98,6 +98,6 @@ function evaluate_add(
     sum += evaluated.value;
   }
 
-  const result: Num = { type: "number", location: 0, value: sum };
+  const result: Num = { type: "number", value: sum };
   return ok(result);
 }
