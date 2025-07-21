@@ -1,5 +1,5 @@
 import { PeekableIterator, error, isErr, isOk, ok, type Result } from "./core";
-import type { Expr, List, Num, Program } from "./types";
+import type { Expr, List, Num, Program, Str } from "./types";
 
 function skipWhitespace(it: PeekableIterator<string>) {
   it.skipWhile((c) => c !== undefined && c.trim() === "");
@@ -53,6 +53,9 @@ function parse_inner(it: PeekableIterator<string>): Result<Expr, Error[]> {
 
   if (next === "(") {
     return parse_list(it);
+  }
+  if (next === '"') {
+    return parse_string(it);
   }
   if (isNumber(next) || (next === "-" && isNumber(it.peek(1) ?? ""))) {
     return parse_number(it);
@@ -142,4 +145,35 @@ function parse_number(it: PeekableIterator<string>): Result<Num, Error[]> {
 
   const num: Num = { type: "number", location, value: Number(numberStr) };
   return ok(num);
+}
+
+function parse_string(it: PeekableIterator<string>): Result<Str, Error[]> {
+  const errors: Error[] = [];
+  const location = it.pos();
+  let stringValue = "";
+
+  // Consume opening quote
+  const openQuote = it.next();
+  if (openQuote !== '"') {
+    errors.push(new Error(`Missing opening " at position ${location}`));
+    return error(errors);
+  }
+
+  // Collect characters until closing quote
+  while (it.hasNext()) {
+    const char = it.next();
+    if (char === '"') {
+      // Found closing quote
+      const str: Str = { type: "string", location, value: stringValue };
+      return ok(str);
+    }
+    if (char === undefined) {
+      break;
+    }
+    stringValue += char;
+  }
+
+  // If we get here, we reached end of input without finding closing quote
+  errors.push(new Error(`Unterminated string literal at position ${location}`));
+  return error(errors);
 }

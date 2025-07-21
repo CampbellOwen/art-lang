@@ -356,6 +356,24 @@ describe("Parser", () => {
           });
         }
       });
+
+      it("should parse a list with strings and numbers", () => {
+        const result = parse('(1 "hello" 2 "world")');
+        expect(isOk(result)).toBe(true);
+        if (isOk(result)) {
+          expect(result.value).toHaveLength(1);
+          expect(result.value[0]).toEqual({
+            type: "list",
+            location: 0,
+            elements: [
+              { type: "number", location: 1, value: 1 },
+              { type: "string", location: 3, value: "hello" },
+              { type: "number", location: 11, value: 2 },
+              { type: "string", location: 13, value: "world" },
+            ],
+          });
+        }
+      });
     });
 
     describe("Sequential expressions separated by whitespace", () => {
