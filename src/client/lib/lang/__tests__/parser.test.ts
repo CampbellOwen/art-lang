@@ -17,7 +17,11 @@ describe("Parser", () => {
       expect(isOk(result)).toBe(true);
       if (isOk(result)) {
         expect(result.value).toHaveLength(1);
-        expect(result.value[0]).toEqual({ type: "number", value: 42 });
+        expect(result.value[0]).toEqual({
+          type: "number",
+          location: 0,
+          value: 42,
+        });
       }
     });
 
@@ -26,7 +30,11 @@ describe("Parser", () => {
       expect(isOk(result)).toBe(true);
       if (isOk(result)) {
         expect(result.value).toHaveLength(1);
-        expect(result.value[0]).toEqual({ type: "string", value: "hello" });
+        expect(result.value[0]).toEqual({
+          type: "string",
+          location: 0,
+          value: "hello",
+        });
       }
     });
 
@@ -35,7 +43,11 @@ describe("Parser", () => {
       expect(isOk(result)).toBe(true);
       if (isOk(result)) {
         expect(result.value).toHaveLength(1);
-        expect(result.value[0]).toEqual({ type: "symbol", value: "hello" });
+        expect(result.value[0]).toEqual({
+          type: "symbol",
+          location: 0,
+          value: "hello",
+        });
       }
     });
 
@@ -46,10 +58,11 @@ describe("Parser", () => {
         expect(result.value).toHaveLength(1);
         expect(result.value[0]).toEqual({
           type: "list",
+          location: 0,
           elements: [
-            { type: "symbol", value: "+" },
-            { type: "number", value: 1 },
-            { type: "number", value: 2 },
+            { type: "symbol", location: 1, value: "+" },
+            { type: "number", location: 3, value: 1 },
+            { type: "number", location: 5, value: 2 },
           ],
         });
       }
@@ -62,21 +75,24 @@ describe("Parser", () => {
         expect(result.value).toHaveLength(1);
         expect(result.value[0]).toEqual({
           type: "list",
+          location: 0,
           elements: [
-            { type: "symbol", value: "define" },
+            { type: "symbol", location: 1, value: "define" },
             {
               type: "list",
+              location: 8,
               elements: [
-                { type: "symbol", value: "square" },
-                { type: "symbol", value: "x" },
+                { type: "symbol", location: 9, value: "square" },
+                { type: "symbol", location: 16, value: "x" },
               ],
             },
             {
               type: "list",
+              location: 19,
               elements: [
-                { type: "symbol", value: "*" },
-                { type: "symbol", value: "x" },
-                { type: "symbol", value: "x" },
+                { type: "symbol", location: 20, value: "*" },
+                { type: "symbol", location: 22, value: "x" },
+                { type: "symbol", location: 24, value: "x" },
               ],
             },
           ],
@@ -93,7 +109,11 @@ describe("Parser", () => {
         expect(isOk(result)).toBe(true);
         if (isOk(result)) {
           expect(result.value).toHaveLength(1);
-          expect(result.value[0]).toEqual({ type: "number", value: 123 });
+          expect(result.value[0]).toEqual({
+            type: "number",
+            location: 0,
+            value: 123,
+          });
         }
       });
 
@@ -102,7 +122,11 @@ describe("Parser", () => {
         expect(isOk(result)).toBe(true);
         if (isOk(result)) {
           expect(result.value).toHaveLength(1);
-          expect(result.value[0]).toEqual({ type: "number", value: -456 });
+          expect(result.value[0]).toEqual({
+            type: "number",
+            location: 0,
+            value: -456,
+          });
         }
       });
 
@@ -111,7 +135,11 @@ describe("Parser", () => {
         expect(isOk(result)).toBe(true);
         if (isOk(result)) {
           expect(result.value).toHaveLength(1);
-          expect(result.value[0]).toEqual({ type: "number", value: 3.14 });
+          expect(result.value[0]).toEqual({
+            type: "number",
+            location: 0,
+            value: 3.14,
+          });
         }
       });
     });
@@ -122,7 +150,11 @@ describe("Parser", () => {
         expect(isOk(result)).toBe(true);
         if (isOk(result)) {
           expect(result.value).toHaveLength(1);
-          expect(result.value[0]).toEqual({ type: "string", value: "hello" });
+          expect(result.value[0]).toEqual({
+            type: "string",
+            location: 0,
+            value: "hello",
+          });
         }
       });
 
@@ -131,7 +163,11 @@ describe("Parser", () => {
         expect(isOk(result)).toBe(true);
         if (isOk(result)) {
           expect(result.value).toHaveLength(1);
-          expect(result.value[0]).toEqual({ type: "string", value: "" });
+          expect(result.value[0]).toEqual({
+            type: "string",
+            location: 0,
+            value: "",
+          });
         }
       });
 
@@ -142,6 +178,7 @@ describe("Parser", () => {
           expect(result.value).toHaveLength(1);
           expect(result.value[0]).toEqual({
             type: "string",
+            location: 0,
             value: "hello world",
           });
         }
@@ -154,7 +191,11 @@ describe("Parser", () => {
         expect(isOk(result)).toBe(true);
         if (isOk(result)) {
           expect(result.value).toHaveLength(1);
-          expect(result.value[0]).toEqual({ type: "symbol", value: "hello" });
+          expect(result.value[0]).toEqual({
+            type: "symbol",
+            location: 0,
+            value: "hello",
+          });
         }
       });
 
@@ -165,6 +206,7 @@ describe("Parser", () => {
           expect(result.value).toHaveLength(1);
           expect(result.value[0]).toEqual({
             type: "symbol",
+            location: 0,
             value: "add-numbers",
           });
         }
@@ -175,7 +217,11 @@ describe("Parser", () => {
         expect(isOk(result)).toBe(true);
         if (isOk(result)) {
           expect(result.value).toHaveLength(1);
-          expect(result.value[0]).toEqual({ type: "symbol", value: "empty?" });
+          expect(result.value[0]).toEqual({
+            type: "symbol",
+            location: 0,
+            value: "empty?",
+          });
         }
       });
 
@@ -184,7 +230,11 @@ describe("Parser", () => {
         expect(isOk(result)).toBe(true);
         if (isOk(result)) {
           expect(result.value).toHaveLength(1);
-          expect(result.value[0]).toEqual({ type: "symbol", value: "do-it!" });
+          expect(result.value[0]).toEqual({
+            type: "symbol",
+            location: 0,
+            value: "do-it!",
+          });
         }
       });
     });
@@ -195,7 +245,11 @@ describe("Parser", () => {
         expect(isOk(result)).toBe(true);
         if (isOk(result)) {
           expect(result.value).toHaveLength(1);
-          expect(result.value[0]).toEqual({ type: "list", elements: [] });
+          expect(result.value[0]).toEqual({
+            type: "list",
+            location: 0,
+            elements: [],
+          });
         }
       });
 
@@ -206,7 +260,8 @@ describe("Parser", () => {
           expect(result.value).toHaveLength(1);
           expect(result.value[0]).toEqual({
             type: "list",
-            elements: [{ type: "symbol", value: "hello" }],
+            location: 0,
+            elements: [{ type: "symbol", location: 1, value: "hello" }],
           });
         }
       });
@@ -218,10 +273,11 @@ describe("Parser", () => {
           expect(result.value).toHaveLength(1);
           expect(result.value[0]).toEqual({
             type: "list",
+            location: 0,
             elements: [
-              { type: "symbol", value: "+" },
-              { type: "number", value: 1 },
-              { type: "number", value: 2 },
+              { type: "symbol", location: 1, value: "+" },
+              { type: "number", location: 3, value: 1 },
+              { type: "number", location: 5, value: 2 },
             ],
           });
         }
@@ -234,17 +290,19 @@ describe("Parser", () => {
           expect(result.value).toHaveLength(1);
           expect(result.value[0]).toEqual({
             type: "list",
+            location: 0,
             elements: [
-              { type: "symbol", value: "+" },
+              { type: "symbol", location: 1, value: "+" },
               {
                 type: "list",
+                location: 3,
                 elements: [
-                  { type: "symbol", value: "-" },
-                  { type: "number", value: 5 },
-                  { type: "number", value: 3 },
+                  { type: "symbol", location: 4, value: "-" },
+                  { type: "number", location: 6, value: 5 },
+                  { type: "number", location: 8, value: 3 },
                 ],
               },
-              { type: "number", value: 2 },
+              { type: "number", location: 11, value: 2 },
             ],
           });
         }
@@ -257,14 +315,23 @@ describe("Parser", () => {
         expect(isOk(result)).toBe(true);
         if (isOk(result)) {
           expect(result.value).toHaveLength(3);
-          expect(result.value[0]).toEqual({ type: "number", value: 42 });
-          expect(result.value[1]).toEqual({ type: "symbol", value: "hello" });
+          expect(result.value[0]).toEqual({
+            type: "number",
+            location: 0,
+            value: 42,
+          });
+          expect(result.value[1]).toEqual({
+            type: "symbol",
+            location: 3,
+            value: "hello",
+          });
           expect(result.value[2]).toEqual({
             type: "list",
+            location: 9,
             elements: [
-              { type: "symbol", value: "+" },
-              { type: "number", value: 1 },
-              { type: "number", value: 2 },
+              { type: "symbol", location: 10, value: "+" },
+              { type: "number", location: 12, value: 1 },
+              { type: "number", location: 14, value: 2 },
             ],
           });
         }
@@ -275,14 +342,23 @@ describe("Parser", () => {
         expect(isOk(result)).toBe(true);
         if (isOk(result)) {
           expect(result.value).toHaveLength(3);
-          expect(result.value[0]).toEqual({ type: "number", value: 42 });
-          expect(result.value[1]).toEqual({ type: "string", value: "hello" });
+          expect(result.value[0]).toEqual({
+            type: "number",
+            location: 2,
+            value: 42,
+          });
+          expect(result.value[1]).toEqual({
+            type: "string",
+            location: 7,
+            value: "hello",
+          });
           expect(result.value[2]).toEqual({
             type: "list",
+            location: 17,
             elements: [
-              { type: "symbol", value: "+" },
-              { type: "number", value: 1 },
-              { type: "number", value: 2 },
+              { type: "symbol", location: 18, value: "+" },
+              { type: "number", location: 20, value: 1 },
+              { type: "number", location: 22, value: 2 },
             ],
           });
         }
@@ -297,11 +373,12 @@ describe("Parser", () => {
           expect(result.value).toHaveLength(1);
           expect(result.value[0]).toEqual({
             type: "list",
+            location: 0,
             elements: [
-              { type: "symbol", value: "circle" },
-              { type: "number", value: 100 },
-              { type: "number", value: 200 },
-              { type: "number", value: 50 },
+              { type: "symbol", location: 1, value: "circle" },
+              { type: "number", location: 8, value: 100 },
+              { type: "number", location: 12, value: 200 },
+              { type: "number", location: 16, value: 50 },
             ],
           });
         }
@@ -314,21 +391,24 @@ describe("Parser", () => {
           expect(result.value).toHaveLength(1);
           expect(result.value[0]).toEqual({
             type: "list",
+            location: 0,
             elements: [
-              { type: "symbol", value: "define" },
+              { type: "symbol", location: 1, value: "define" },
               {
                 type: "list",
+                location: 8,
                 elements: [
-                  { type: "symbol", value: "square" },
-                  { type: "symbol", value: "x" },
+                  { type: "symbol", location: 9, value: "square" },
+                  { type: "symbol", location: 16, value: "x" },
                 ],
               },
               {
                 type: "list",
+                location: 19,
                 elements: [
-                  { type: "symbol", value: "*" },
-                  { type: "symbol", value: "x" },
-                  { type: "symbol", value: "x" },
+                  { type: "symbol", location: 20, value: "*" },
+                  { type: "symbol", location: 22, value: "x" },
+                  { type: "symbol", location: 24, value: "x" },
                 ],
               },
             ],
@@ -391,7 +471,11 @@ describe("Parser", () => {
               current = current.elements[0];
             }
           }
-          expect(current).toEqual({ type: "symbol", value: "hello" });
+          expect(current).toEqual({
+            type: "symbol",
+            location: 10,
+            value: "hello",
+          });
         }
       });
 
@@ -402,16 +486,18 @@ describe("Parser", () => {
           expect(result.value).toHaveLength(1);
           expect(result.value[0]).toEqual({
             type: "list",
+            location: 0,
             elements: [
-              { type: "number", value: 42 },
-              { type: "string", value: "hello" },
-              { type: "symbol", value: "world" },
+              { type: "number", location: 1, value: 42 },
+              { type: "string", location: 4, value: "hello" },
+              { type: "symbol", location: 12, value: "world" },
               {
                 type: "list",
+                location: 18,
                 elements: [
-                  { type: "symbol", value: "+" },
-                  { type: "number", value: 1 },
-                  { type: "number", value: 2 },
+                  { type: "symbol", location: 19, value: "+" },
+                  { type: "number", location: 21, value: 1 },
+                  { type: "number", location: 23, value: 2 },
                 ],
               },
             ],
@@ -431,14 +517,23 @@ describe("Parser", () => {
         expect(isOk(result)).toBe(true);
         if (isOk(result)) {
           expect(result.value).toHaveLength(3);
-          expect(result.value[0]).toEqual({ type: "number", value: 42 });
-          expect(result.value[1]).toEqual({ type: "string", value: "hello" });
+          expect(result.value[0]).toEqual({
+            type: "number",
+            location: 11,
+            value: 42,
+          });
+          expect(result.value[1]).toEqual({
+            type: "string",
+            location: 26,
+            value: "hello",
+          });
           expect(result.value[2]).toEqual({
             type: "list",
+            location: 45,
             elements: [
-              { type: "symbol", value: "+" },
-              { type: "number", value: 1 },
-              { type: "number", value: 2 },
+              { type: "symbol", location: 46, value: "+" },
+              { type: "number", location: 48, value: 1 },
+              { type: "number", location: 63, value: 2 },
             ],
           });
         }
