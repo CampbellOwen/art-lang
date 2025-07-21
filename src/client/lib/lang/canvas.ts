@@ -10,42 +10,51 @@ export interface Color {
   a?: number; // alpha channel, defaults to 1.0
 }
 
+// Canvas interface that matches CanvasRenderingContext2D subset we need
 export interface Canvas {
   // Canvas dimensions
-  readonly width: number;
-  readonly height: number;
+  readonly canvas: { width: number; height: number };
+
+  // Path operations
+  beginPath(): void;
+  moveTo(x: number, y: number): void;
+  lineTo(x: number, y: number): void;
+  closePath(): void;
+
+  // Shape primitives
+  rect(x: number, y: number, width: number, height: number): void;
+  arc(
+    x: number,
+    y: number,
+    radius: number,
+    startAngle: number,
+    endAngle: number,
+    counterclockwise?: boolean,
+  ): void;
 
   // Drawing operations
-  drawLine(start: Point, end: Point, color: Color, thickness?: number): void;
-  drawRectangle(
-    topLeft: Point,
-    width: number,
-    height: number,
-    color: Color,
-    filled?: boolean,
-  ): void;
-  drawCircle(
-    center: Point,
-    radius: number,
-    color: Color,
-    filled?: boolean,
-  ): void;
-  drawText(
-    text: string,
-    position: Point,
-    color: Color,
-    fontSize?: number,
-  ): void;
+  fill(): void;
+  stroke(): void;
 
-  // Canvas operations
-  clear(color?: Color): void;
-  setPixel(position: Point, color: Color): void;
-  getPixel(position: Point): Color;
+  // Text operations
+  fillText(text: string, x: number, y: number): void;
+  strokeText(text: string, x: number, y: number): void;
+
+  // Clear operations
+  clearRect(x: number, y: number, width: number, height: number): void;
+  fillRect(x: number, y: number, width: number, height: number): void;
+  strokeRect(x: number, y: number, width: number, height: number): void;
+
+  // Style properties
+  fillStyle: string | CanvasGradient | CanvasPattern;
+  strokeStyle: string | CanvasGradient | CanvasPattern;
+  lineWidth: number;
+  font: string;
 
   // Transformation operations
-  translate(offset: Point): void;
+  translate(x: number, y: number): void;
   rotate(angle: number): void;
-  scale(factor: number): void;
+  scale(x: number, y: number): void;
   resetTransform(): void;
 
   // State management
@@ -54,18 +63,21 @@ export interface Canvas {
 }
 
 export class MockCanvas implements Canvas {
-  public readonly width: number;
-  public readonly height: number;
-  private operations: Array<{ type: string; args: unknown[] }> = [];
-  private transformStack: unknown[] = [];
+  public readonly canvas: { width: number; height: number };
+  private operations: Array<{ type: string; args: any[] }> = [];
+
+  // Style properties
+  public fillStyle: string | CanvasGradient | CanvasPattern = "#000000";
+  public strokeStyle: string | CanvasGradient | CanvasPattern = "#000000";
+  public lineWidth: number = 1;
+  public font: string = "10px sans-serif";
 
   constructor(width: number = 800, height: number = 600) {
-    this.width = width;
-    this.height = height;
+    this.canvas = { width, height };
   }
 
   // Method to inspect operations for testing
-  getOperations(): Array<{ type: string; args: unknown[] }> {
+  getOperations(): Array<{ type: string; args: any[] }> {
     return [...this.operations];
   }
 
@@ -73,119 +85,142 @@ export class MockCanvas implements Canvas {
     this.operations = [];
   }
 
-  drawLine(
-    start: Point,
-    end: Point,
-    color: Color,
-    thickness: number = 1,
-  ): void {
-    this.operations.push({
-      type: "drawLine",
-      args: [start, end, color, thickness],
-    });
+  beginPath(): void {
+    this.operations.push({ type: "beginPath", args: [] });
   }
 
-  drawRectangle(
-    topLeft: Point,
-    width: number,
-    height: number,
-    color: Color,
-    filled: boolean = false,
-  ): void {
-    this.operations.push({
-      type: "drawRectangle",
-      args: [topLeft, width, height, color, filled],
-    });
+  moveTo(x: number, y: number): void {
+    this.operations.push({ type: "moveTo", args: [x, y] });
   }
 
-  drawCircle(
-    center: Point,
+  lineTo(x: number, y: number): void {
+    this.operations.push({ type: "lineTo", args: [x, y] });
+  }
+
+  closePath(): void {
+    this.operations.push({ type: "closePath", args: [] });
+  }
+
+  rect(x: number, y: number, width: number, height: number): void {
+    this.operations.push({ type: "rect", args: [x, y, width, height] });
+  }
+
+  arc(
+    x: number,
+    y: number,
     radius: number,
-    color: Color,
-    filled: boolean = false,
+    startAngle: number,
+    endAngle: number,
+    counterclockwise: boolean = false,
   ): void {
     this.operations.push({
-      type: "drawCircle",
-      args: [center, radius, color, filled],
+      type: "arc",
+      args: [x, y, radius, startAngle, endAngle, counterclockwise],
     });
   }
 
-  drawText(
-    text: string,
-    position: Point,
-    color: Color,
-    fontSize: number = 12,
-  ): void {
-    this.operations.push({
-      type: "drawText",
-      args: [text, position, color, fontSize],
-    });
+  fill(): void {
+    this.operations.push({ type: "fill", args: [] });
   }
 
-  clear(color?: Color): void {
-    this.operations.push({
-      type: "clear",
-      args: [color],
-    });
+  stroke(): void {
+    this.operations.push({ type: "stroke", args: [] });
   }
 
-  setPixel(position: Point, color: Color): void {
-    this.operations.push({
-      type: "setPixel",
-      args: [position, color],
-    });
+  fillText(text: string, x: number, y: number): void {
+    this.operations.push({ type: "fillText", args: [text, x, y] });
   }
 
-  getPixel(position: Point): Color {
-    this.operations.push({
-      type: "getPixel",
-      args: [position],
-    });
-    // Return a default color for testing
-    return { r: 0, g: 0, b: 0, a: 1 };
+  strokeText(text: string, x: number, y: number): void {
+    this.operations.push({ type: "strokeText", args: [text, x, y] });
   }
 
-  translate(offset: Point): void {
-    this.operations.push({
-      type: "translate",
-      args: [offset],
-    });
+  clearRect(x: number, y: number, width: number, height: number): void {
+    this.operations.push({ type: "clearRect", args: [x, y, width, height] });
+  }
+
+  fillRect(x: number, y: number, width: number, height: number): void {
+    this.operations.push({ type: "fillRect", args: [x, y, width, height] });
+  }
+
+  strokeRect(x: number, y: number, width: number, height: number): void {
+    this.operations.push({ type: "strokeRect", args: [x, y, width, height] });
+  }
+
+  translate(x: number, y: number): void {
+    this.operations.push({ type: "translate", args: [x, y] });
   }
 
   rotate(angle: number): void {
-    this.operations.push({
-      type: "rotate",
-      args: [angle],
-    });
+    this.operations.push({ type: "rotate", args: [angle] });
   }
 
-  scale(factor: number): void {
-    this.operations.push({
-      type: "scale",
-      args: [factor],
-    });
+  scale(x: number, y: number): void {
+    this.operations.push({ type: "scale", args: [x, y] });
   }
 
   resetTransform(): void {
-    this.operations.push({
-      type: "resetTransform",
-      args: [],
-    });
+    this.operations.push({ type: "resetTransform", args: [] });
   }
 
   save(): void {
-    this.transformStack.push({});
-    this.operations.push({
-      type: "save",
-      args: [],
-    });
+    this.operations.push({ type: "save", args: [] });
   }
 
   restore(): void {
-    this.transformStack.pop();
-    this.operations.push({
-      type: "restore",
-      args: [],
-    });
+    this.operations.push({ type: "restore", args: [] });
   }
+}
+
+// Utility functions for common drawing patterns
+export function drawLine(
+  canvas: Canvas,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+): void {
+  canvas.beginPath();
+  canvas.moveTo(x1, y1);
+  canvas.lineTo(x2, y2);
+  canvas.stroke();
+}
+
+export function drawCircle(
+  canvas: Canvas,
+  x: number,
+  y: number,
+  radius: number,
+  filled: boolean = false,
+): void {
+  canvas.beginPath();
+  canvas.arc(x, y, radius, 0, 2 * Math.PI);
+  if (filled) {
+    canvas.fill();
+  } else {
+    canvas.stroke();
+  }
+}
+
+export function drawRectangle(
+  canvas: Canvas,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  filled: boolean = false,
+): void {
+  if (filled) {
+    canvas.fillRect(x, y, width, height);
+  } else {
+    canvas.strokeRect(x, y, width, height);
+  }
+}
+
+export function colorToString(color: Color): string {
+  const r = Math.floor(color.r);
+  const g = Math.floor(color.g);
+  const b = Math.floor(color.b);
+  const a = color.a ?? 1.0;
+  return `rgba(${r}, ${g}, ${b}, ${a})`;
 }
