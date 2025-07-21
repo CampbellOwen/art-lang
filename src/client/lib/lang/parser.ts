@@ -52,11 +52,6 @@ function parse_inner(it: PeekableIterator<string>): Result<Expr, Error[]> {
   skipWhitespace(it);
 
   const next = it.peek();
-  if (next === undefined) {
-    // End of input after whitespace is valid - return null to signal completion
-    console.log("returning null");
-    return ok(null as any);
-  }
 
   if (next === "(") {
     return parse_list(it);
@@ -64,7 +59,7 @@ function parse_inner(it: PeekableIterator<string>): Result<Expr, Error[]> {
   if (next === '"') {
     return parse_string(it);
   }
-  if (isNumber(next) || (next === "-" && isNumber(it.peek(1) ?? ""))) {
+  if (isNumber(next ?? "") || (next === "-" && isNumber(it.peek(1) ?? ""))) {
     return parse_number(it);
   }
 
