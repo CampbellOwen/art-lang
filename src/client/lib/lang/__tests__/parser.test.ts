@@ -3,57 +3,84 @@ import { parse } from "../parser.js";
 import { isErr, isOk } from "../core.js";
 
 describe("Parser", () => {
-  describe("Unimplemented parser behavior", () => {
-    it("should return error for empty input", () => {
+  describe("Basic token parsing and error handling", () => {
+    it("should return empty program for empty input", () => {
       const result = parse("");
-      expect(isErr(result)).toBe(true);
-      if (isErr(result)) {
-        expect(Array.isArray(result.value)).toBe(true);
-        expect(result.value.length).toBeGreaterThan(0);
-        expect(result.value[0]).toBeInstanceOf(Error);
-        expect(result.value[0].message).toBe("Unexpected end of input");
+      expect(isOk(result)).toBe(true);
+      if (isOk(result)) {
+        expect(result.value).toHaveLength(0);
       }
     });
 
-    it("should return error for simple number input", () => {
+    it("should parse simple number input", () => {
       const result = parse("42");
-      expect(isErr(result)).toBe(true);
-      if (isErr(result)) {
-        expect(Array.isArray(result.value)).toBe(true);
-        expect(result.value[0]).toBeInstanceOf(Error);
-        expect(result.value[0].message).toBe("Unexpected end of input");
+      expect(isOk(result)).toBe(true);
+      if (isOk(result)) {
+        expect(result.value).toHaveLength(1);
+        expect(result.value[0]).toEqual({ type: "number", value: 42 });
       }
     });
 
-    it("should return error for string input", () => {
+    it("should parse string input", () => {
       const result = parse('"hello"');
-      expect(isErr(result)).toBe(true);
-      if (isErr(result)) {
-        expect(result.value[0].message).toBe("Unexpected end of input");
+      expect(isOk(result)).toBe(true);
+      if (isOk(result)) {
+        expect(result.value).toHaveLength(1);
+        expect(result.value[0]).toEqual({ type: "string", value: "hello" });
       }
     });
 
-    it("should return error for symbol input", () => {
+    it("should parse symbol input", () => {
       const result = parse("hello");
-      expect(isErr(result)).toBe(true);
-      if (isErr(result)) {
-        expect(result.value[0].message).toBe("Unexpected end of input");
+      expect(isOk(result)).toBe(true);
+      if (isOk(result)) {
+        expect(result.value).toHaveLength(1);
+        expect(result.value[0]).toEqual({ type: "symbol", value: "hello" });
       }
     });
 
-    it("should return error for list input", () => {
+    it("should parse simple list input", () => {
       const result = parse("(+ 1 2)");
-      expect(isErr(result)).toBe(true);
-      if (isErr(result)) {
-        expect(result.value[0].message).toBe("Unexpected end of input");
+      expect(isOk(result)).toBe(true);
+      if (isOk(result)) {
+        expect(result.value).toHaveLength(1);
+        expect(result.value[0]).toEqual({
+          type: "list",
+          elements: [
+            { type: "symbol", value: "+" },
+            { type: "number", value: 1 },
+            { type: "number", value: 2 },
+          ],
+        });
       }
     });
 
-    it("should return error for complex nested input", () => {
+    it("should parse complex nested input", () => {
       const result = parse("(define (square x) (* x x))");
-      expect(isErr(result)).toBe(true);
-      if (isErr(result)) {
-        expect(result.value[0].message).toBe("Unexpected end of input");
+      expect(isOk(result)).toBe(true);
+      if (isOk(result)) {
+        expect(result.value).toHaveLength(1);
+        expect(result.value[0]).toEqual({
+          type: "list",
+          elements: [
+            { type: "symbol", value: "define" },
+            {
+              type: "list",
+              elements: [
+                { type: "symbol", value: "square" },
+                { type: "symbol", value: "x" },
+              ],
+            },
+            {
+              type: "list",
+              elements: [
+                { type: "symbol", value: "*" },
+                { type: "symbol", value: "x" },
+                { type: "symbol", value: "x" },
+              ],
+            },
+          ],
+        });
       }
     });
   });
