@@ -1,24 +1,34 @@
 import "./App.css";
 
 import { useState } from "react";
+import * as React from "react";
 
 import reactLogo from "./assets/react.svg";
 import { parse } from "./lib/lang";
 import { evaluate, run } from "./lib/lang/interpreter";
-import { isOk } from "./lib/lang/core";
+import { debugPrint, isErr, isOk } from "./lib/lang/core";
 
 function App() {
   const [count, setCount] = useState(0);
 
-  const input = "(+ 1 2)";
-  const result = parse(input);
-  console.log(input);
-  console.log(result);
+  const input = "(+ 1 2) (* 10 2) (- 10 5 3) (/ 100 5)";
+  React.useEffect(() => {
+    const result = parse(input);
 
-  if (isOk(result)) {
-    const evaluated = run(result.value);
-    evaluated.forEach(console.log);
-  }
+    if (isOk(result)) {
+      console.log(`Parsed:\n${result.value.map(debugPrint).join("\n")}`);
+      const evaluated = run(result.value);
+      evaluated.forEach((res) => {
+        if (isErr(res) || !res.value) {
+          console.log(res.value);
+        } else {
+          console.log(debugPrint(res.value));
+        }
+      });
+    } else {
+      console.log(result.value);
+    }
+  }, [input]);
 
   return (
     <div className="App">

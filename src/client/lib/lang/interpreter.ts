@@ -67,6 +67,10 @@ function evaluate_builtin(
       return evaluate_add(environment, args);
     case "-":
       return evaluate_subtract(environment, args);
+    case "*":
+      return evaluate_multiply(environment, args);
+    case "/":
+      return evaluate_divide(environment, args);
     default:
       return error(new Error(`Unimplemented built-in function ${builtinName}`));
   }
@@ -157,6 +161,104 @@ function evaluate_subtract(
       result = evaluated.value;
     } else {
       result -= evaluated.value;
+    }
+  }
+
+  const resultNum: Num = { type: "number", value: result };
+  return ok(resultNum);
+}
+
+function evaluate_multiply(
+  environment: Environment,
+  args: Expr[],
+): Result<Expr, Error> {
+  if (args.length === 0) {
+    const result: Num = { type: "number", value: 1 };
+    return ok(result);
+  }
+
+  let product = 1;
+  for (const arg of args) {
+    const evaluatedResult = evaluate(environment, arg);
+    if (!isOk(evaluatedResult)) {
+      return evaluatedResult;
+    }
+
+    const evaluated = evaluatedResult.value;
+    if (!evaluated || evaluated.type !== "number") {
+      return error(
+        new Error(
+          `Multiplication requires numbers, got ${evaluated?.type || "undefined"}`,
+        ),
+      );
+    }
+
+    product *= evaluated.value;
+  }
+
+  const result: Num = { type: "number", value: product };
+  return ok(result);
+}
+
+function evaluate_divide(
+  environment: Environment,
+  args: Expr[],
+): Result<Expr, Error> {
+  if (args.length === 0) {
+    return error(new Error("Division requires at least one argument"));
+  }
+
+  if (args.length === 1) {
+    // Reciprocal: 1 / arg
+    const evaluatedResult = evaluate(environment, args[0]);
+    if (!isOk(evaluatedResult)) {
+      return evaluatedResult;
+    }
+
+    const evaluated = evaluatedResult.value;
+    if (!evaluated || evaluated.type !== "number") {
+      return error(
+        new Error(
+          `Division requires numbers, got ${evaluated?.type || "undefined"}`,
+        ),
+      );
+    }
+
+    if (evaluated.value === 0) {
+      return error(new Error("Division by zero"));
+    }
+
+    const result: Num = {
+      type: "number",
+      value: 1 / evaluated.value,
+    };
+    return ok(result);
+  }
+
+  // Binary division: first / second / third / ...
+  let result = 0;
+  for (let i = 0; i < args.length; i++) {
+    const evaluatedResult = evaluate(environment, args[i]);
+    if (!isOk(evaluatedResult)) {
+      return evaluatedResult;
+    }
+
+    const evaluated = evaluatedResult.value;
+    if (!evaluated || evaluated.type !== "number") {
+      return error(
+        new Error(
+          `Division requires numbers, got ${evaluated?.type || "undefined"}`,
+        ),
+      );
+    }
+
+    if (i === 0) {
+      result = evaluated.value;
+    } else {
+      if (evaluated.value === 0) {
+        return error(new Error("Division by zero"));
+      }
+      result /= evaluated.value;
     }
   }
 

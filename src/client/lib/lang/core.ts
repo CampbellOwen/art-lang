@@ -62,3 +62,17 @@ export class PeekableIterator<T> {
 export function isSymbol(expr: Expr): expr is Symbol {
   return expr.type === "symbol";
 }
+
+export function debugPrint(expr: Expr): string {
+  switch (expr.type) {
+    case "string":
+      return `"${expr.value}"`;
+    case "number":
+    case "symbol":
+      return `${expr.value}`;
+    case "list": {
+      const subExprs = expr.elements.map(debugPrint);
+      return `(${subExprs.join(" ")})`;
+    }
+  }
+}
