@@ -1,5 +1,11 @@
 import { Bool, Expr, Symbol } from "./types";
 
+export type LocatedError = {
+  message: string;
+  location?: number;
+  length?: number;
+};
+
 export type Ok<T> = { type: "ok"; value: T };
 export type Err<E> = { type: "error"; value: E };
 export type Result<T, E> = Ok<T> | Err<E>;
@@ -13,6 +19,14 @@ export function isErr<T, E>(result: Result<T, E>): result is Err<E> {
 
 export function error<E>(e: E): Err<E> {
   return { type: "error", value: e };
+}
+
+export function locatedError(
+  message: string,
+  location?: number,
+  length?: number,
+): Err<LocatedError> {
+  return { type: "error", value: { message, location, length } };
 }
 
 export function ok<T>(value: T): Ok<T> {

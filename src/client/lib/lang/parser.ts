@@ -1,4 +1,12 @@
-import { PeekableIterator, error, isErr, isOk, ok, type Result } from "./core";
+import {
+  PeekableIterator,
+  error,
+  isErr,
+  isOk,
+  ok,
+  type Result,
+  type LocatedError,
+} from "./core";
 import type { Expr, List, Num, Program, Str, Symbol } from "./types";
 
 function skipWhitespace(it: PeekableIterator<string>) {
@@ -9,10 +17,10 @@ function isNumber(str: string): boolean {
   return !Number.isNaN(Number(str)) && str.trim() !== "";
 }
 
-export function parse(input: string): Result<Program, Error[]> {
+export function parse(input: string): Result<Program, LocatedError[]> {
   const iterator = new PeekableIterator(Array.from(input));
 
-  const errors: Error[] = [];
+  const errors: LocatedError[] = [];
   const program: Expr[] = [];
 
   while (iterator.hasNext()) {
@@ -28,7 +36,7 @@ export function parse(input: string): Result<Program, Error[]> {
         break;
       }
     } else {
-      res.value.forEach((err) => errors.push(err));
+      errors.push(...res.value);
       // Advance iterator to prevent infinite loop on persistent errors
       iterator.next();
     }
@@ -40,12 +48,14 @@ export function parse(input: string): Result<Program, Error[]> {
   return ok(program);
 }
 
-function parse_inner(it: PeekableIterator<string>): Result<Expr, Error[]> {
-  const errors: Error[] = [];
+function parse_inner(
+  it: PeekableIterator<string>,
+): Result<Expr, LocatedError[]> {
+  const errors: LocatedError[] = [];
   const location = it.pos();
 
   if (!it.hasNext()) {
-    errors.push(new Error(`Unexpected end of input at ${location}`));
+    errors.push({ message: "Unexpected end of input", location });
     return error(errors);
   }
 
@@ -67,14 +77,17 @@ function parse_inner(it: PeekableIterator<string>): Result<Expr, Error[]> {
   return parse_symbol(it);
 }
 
-function parse_list(it: PeekableIterator<string>): Result<List, Error[]> {
+function parse_list(
+  it: PeekableIterator<string>,
+): Result<List, LocatedError[]> {
   const exprs: Expr[] = [];
-  const errors: Error[] = [];
+  const errors: LocatedError[] = [];
   const location = it.pos();
 
   const next = it.next();
   if (next !== "(") {
-    errors.push(new Error(`Missing opening ( at position ${it.pos()}`));
+    const pos = it.pos();
+    errors.push({ message: "Missing opening (", location: pos, length: 1 });
     return error(errors);
   }
 
@@ -89,9 +102,10 @@ function parse_list(it: PeekableIterator<string>): Result<List, Error[]> {
 
     // If we've reached the end of input without closing paren, that's an error
     if (!it.hasNext()) {
-      errors.push(
-        new Error(`Unexpected end of input - missing closing parenthesis`),
-      );
+      errors.push({
+        message: "Unexpected end of input - missing closing parenthesis",
+        location: location,
+      });
       break;
     }
 
@@ -113,8 +127,10 @@ function parse_list(it: PeekableIterator<string>): Result<List, Error[]> {
   return ok(list);
 }
 
-function parse_number(it: PeekableIterator<string>): Result<Num, Error[]> {
-  const errors: Error[] = [];
+function parse_number(
+  it: PeekableIterator<string>,
+): Result<Num, LocatedError[]> {
+  const errors: LocatedError[] = [];
   const location = it.pos();
   let numberStr = "";
 
@@ -136,9 +152,11 @@ function parse_number(it: PeekableIterator<string>): Result<Num, Error[]> {
   }
 
   if (!isNumber(numberStr)) {
-    errors.push(
-      new Error(`Invalid number format '${numberStr}' at position ${location}`),
-    );
+    errors.push({
+      message: `Invalid number format '${numberStr}'`,
+      location,
+      length: numberStr.length,
+    });
     return error(errors);
   }
 
@@ -146,15 +164,17 @@ function parse_number(it: PeekableIterator<string>): Result<Num, Error[]> {
   return ok(num);
 }
 
-function parse_string(it: PeekableIterator<string>): Result<Str, Error[]> {
-  const errors: Error[] = [];
+function parse_string(
+  it: PeekableIterator<string>,
+): Result<Str, LocatedError[]> {
+  const errors: LocatedError[] = [];
   const location = it.pos();
   let stringValue = "";
 
   // Consume opening quote
   const openQuote = it.next();
   if (openQuote !== '"') {
-    errors.push(new Error(`Missing opening " at position ${location}`));
+    errors.push({ message: 'Missing opening "', location, length: 1 });
     return error(errors);
   }
 
@@ -173,12 +193,18 @@ function parse_string(it: PeekableIterator<string>): Result<Str, Error[]> {
   }
 
   // If we get here, we reached end of input without finding closing quote
-  errors.push(new Error(`Unterminated string literal at position ${location}`));
+  errors.push({
+    message: "Unterminated string literal",
+    location,
+    length: stringValue.length + 1,
+  });
   return error(errors);
 }
 
-function parse_symbol(it: PeekableIterator<string>): Result<Symbol, Error[]> {
-  const errors: Error[] = [];
+function parse_symbol(
+  it: PeekableIterator<string>,
+): Result<Symbol, LocatedError[]> {
+  const errors: LocatedError[] = [];
   const location = it.pos();
   let symbolValue = "";
 
@@ -196,7 +222,7 @@ function parse_symbol(it: PeekableIterator<string>): Result<Symbol, Error[]> {
   }
 
   if (symbolValue === "") {
-    errors.push(new Error(`Empty symbol at position ${location}`));
+    errors.push({ message: "Empty symbol", location, length: 1 });
     return error(errors);
   }
 

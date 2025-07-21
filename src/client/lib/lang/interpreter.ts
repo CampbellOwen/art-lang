@@ -1,6 +1,6 @@
 import { Canvas, MockCanvas } from "./canvas";
 import { BUILTIN_SYMBOLS } from "./consts";
-import { error, isOk, isSymbol, ok, Result } from "./core";
+import { isOk, isSymbol, ok, locatedError, Result, LocatedError } from "./core";
 import { Environment, SymbolTable } from "./environment";
 import { Bool, Expr, List, Num, Program, Str, Symbol } from "./types";
 
@@ -13,7 +13,7 @@ export function run(program: Program, canvas: Canvas = new MockCanvas()) {
 export function evaluate(
   environment: Environment,
   expr: Expr,
-): Result<Expr | undefined, Error> {
+): Result<Expr | undefined, LocatedError> {
   switch (expr.type) {
     case "list":
       return evaluate_list(environment, expr);
@@ -23,17 +23,15 @@ export function evaluate(
     case "string":
     case "boolean":
       return ok(expr);
-    default:
-      return error(new Error(`Unimplemented expr ${expr}`));
   }
 }
 
 function evaluate_list(
   environment: Environment,
   list: List,
-): Result<Expr | undefined, Error> {
+): Result<Expr | undefined, LocatedError> {
   if (list.elements.length === 0) {
-    return error(new Error("Cannot evaluate empty list"));
+    return locatedError("Cannot evaluate empty list", list.location);
   }
 
   const first = list.elements[0];
@@ -42,13 +40,13 @@ function evaluate_list(
     return evaluate_builtin(environment, first.value, args);
   }
 
-  return error(new Error(`Cannot evaluate list ${list}`));
+  return locatedError(`Cannot evaluate list ${list}`, list.location);
 }
 
 function evaluate_symbol(
   environment: Environment,
   symbol: Symbol,
-): Result<Expr, Error> {
+): Result<Expr, LocatedError> {
   // Handle built-in boolean literals
   if (symbol.value === "true") {
     const result: Bool = { type: "boolean", value: true };
@@ -66,14 +64,14 @@ function evaluate_symbol(
   if (val !== undefined) {
     return ok(val);
   }
-  return error(new Error(`Symbol ${symbol.value} undefined`));
+  return locatedError(`Symbol ${symbol.value} undefined`, symbol.location);
 }
 
 function evaluate_builtin(
   environment: Environment,
   builtinName: string,
   args: Expr[],
-): Result<Expr | undefined, Error> {
+): Result<Expr | undefined, LocatedError> {
   switch (builtinName) {
     case "+":
       return evaluate_add(environment, args);
@@ -94,14 +92,14 @@ function evaluate_builtin(
     case "=":
       return evaluate_equal(environment, args);
     default:
-      return error(new Error(`Unimplemented built-in function ${builtinName}`));
+      return locatedError(`Unimplemented built-in function ${builtinName}`);
   }
 }
 
 function evaluate_add(
   environment: Environment,
   args: Expr[],
-): Result<Expr, Error> {
+): Result<Expr, LocatedError> {
   if (args.length === 0) {
     const result: Num = { type: "number", value: 0 };
     return ok(result);
@@ -116,10 +114,9 @@ function evaluate_add(
 
     const evaluated = evaluatedResult.value;
     if (!evaluated || evaluated.type !== "number") {
-      return error(
-        new Error(
-          `Addition requires numbers, got ${evaluated?.type || "undefined"}`,
-        ),
+      return locatedError(
+        `Addition requires numbers, got ${evaluated?.type || "undefined"}`,
+        arg.location,
       );
     }
 
@@ -133,7 +130,7 @@ function evaluate_add(
 function evaluate_subtract(
   environment: Environment,
   args: Expr[],
-): Result<Expr, Error> {
+): Result<Expr, LocatedError> {
   if (args.length === 0) {
     const result: Num = { type: "number", value: 0 };
     return ok(result);
@@ -148,10 +145,9 @@ function evaluate_subtract(
 
     const evaluated = evaluatedResult.value;
     if (!evaluated || evaluated.type !== "number") {
-      return error(
-        new Error(
-          `Subtraction requires numbers, got ${evaluated?.type || "undefined"}`,
-        ),
+      return locatedError(
+        `Subtraction requires numbers, got ${evaluated?.type || "undefined"}`,
+        args[0].location,
       );
     }
 
@@ -172,10 +168,9 @@ function evaluate_subtract(
 
     const evaluated = evaluatedResult.value;
     if (!evaluated || evaluated.type !== "number") {
-      return error(
-        new Error(
-          `Subtraction requires numbers, got ${evaluated?.type || "undefined"}`,
-        ),
+      return locatedError(
+        `Subtraction requires numbers, got ${evaluated?.type || "undefined"}`,
+        args[i].location,
       );
     }
 
@@ -193,7 +188,7 @@ function evaluate_subtract(
 function evaluate_multiply(
   environment: Environment,
   args: Expr[],
-): Result<Expr, Error> {
+): Result<Expr, LocatedError> {
   if (args.length === 0) {
     const result: Num = { type: "number", value: 1 };
     return ok(result);
@@ -208,10 +203,9 @@ function evaluate_multiply(
 
     const evaluated = evaluatedResult.value;
     if (!evaluated || evaluated.type !== "number") {
-      return error(
-        new Error(
-          `Multiplication requires numbers, got ${evaluated?.type || "undefined"}`,
-        ),
+      return locatedError(
+        `Multiplication requires numbers, got ${evaluated?.type || "undefined"}`,
+        arg.location,
       );
     }
 
@@ -225,9 +219,9 @@ function evaluate_multiply(
 function evaluate_divide(
   environment: Environment,
   args: Expr[],
-): Result<Expr, Error> {
+): Result<Expr, LocatedError> {
   if (args.length === 0) {
-    return error(new Error("Division requires at least one argument"));
+    return locatedError("Division requires at least one argument");
   }
 
   if (args.length === 1) {
@@ -239,15 +233,14 @@ function evaluate_divide(
 
     const evaluated = evaluatedResult.value;
     if (!evaluated || evaluated.type !== "number") {
-      return error(
-        new Error(
-          `Division requires numbers, got ${evaluated?.type || "undefined"}`,
-        ),
+      return locatedError(
+        `Division requires numbers, got ${evaluated?.type || "undefined"}`,
+        args[0].location,
       );
     }
 
     if (evaluated.value === 0) {
-      return error(new Error("Division by zero"));
+      return locatedError("Division by zero", args[0].location);
     }
 
     const result: Num = {
@@ -267,10 +260,9 @@ function evaluate_divide(
 
     const evaluated = evaluatedResult.value;
     if (!evaluated || evaluated.type !== "number") {
-      return error(
-        new Error(
-          `Division requires numbers, got ${evaluated?.type || "undefined"}`,
-        ),
+      return locatedError(
+        `Division requires numbers, got ${evaluated?.type || "undefined"}`,
+        args[i].location,
       );
     }
 
@@ -278,7 +270,7 @@ function evaluate_divide(
       result = evaluated.value;
     } else {
       if (evaluated.value === 0) {
-        return error(new Error("Division by zero"));
+        return locatedError("Division by zero", args[i].location);
       }
       result /= evaluated.value;
     }
@@ -291,9 +283,9 @@ function evaluate_divide(
 function evaluate_greater_than(
   environment: Environment,
   args: Expr[],
-): Result<Expr, Error> {
+): Result<Expr, LocatedError> {
   if (args.length < 2) {
-    return error(new Error("Greater than (>) requires at least 2 arguments"));
+    return locatedError("Greater than (>) requires at least 2 arguments");
   }
 
   for (let i = 0; i < args.length - 1; i++) {
@@ -311,10 +303,9 @@ function evaluate_greater_than(
     const right = rightResult.value;
 
     if (!left || !right || left.type !== "number" || right.type !== "number") {
-      return error(
-        new Error(
-          `Comparison requires numbers, got ${left?.type || "undefined"} and ${right?.type || "undefined"}`,
-        ),
+      return locatedError(
+        `Comparison requires numbers, got ${left?.type || "undefined"} and ${right?.type || "undefined"}`,
+        args[i].location || args[i + 1].location,
       );
     }
 
@@ -331,10 +322,10 @@ function evaluate_greater_than(
 function evaluate_greater_equal(
   environment: Environment,
   args: Expr[],
-): Result<Expr, Error> {
+): Result<Expr, LocatedError> {
   if (args.length < 2) {
-    return error(
-      new Error("Greater than or equal (>=) requires at least 2 arguments"),
+    return locatedError(
+      "Greater than or equal (>=) requires at least 2 arguments",
     );
   }
 
@@ -353,10 +344,9 @@ function evaluate_greater_equal(
     const right = rightResult.value;
 
     if (!left || !right || left.type !== "number" || right.type !== "number") {
-      return error(
-        new Error(
-          `Comparison requires numbers, got ${left?.type || "undefined"} and ${right?.type || "undefined"}`,
-        ),
+      return locatedError(
+        `Comparison requires numbers, got ${left?.type || "undefined"} and ${right?.type || "undefined"}`,
+        args[i].location || args[i + 1].location,
       );
     }
 
@@ -373,9 +363,9 @@ function evaluate_greater_equal(
 function evaluate_less_than(
   environment: Environment,
   args: Expr[],
-): Result<Expr, Error> {
+): Result<Expr, LocatedError> {
   if (args.length < 2) {
-    return error(new Error("Less than (<) requires at least 2 arguments"));
+    return locatedError("Less than (<) requires at least 2 arguments");
   }
 
   for (let i = 0; i < args.length - 1; i++) {
@@ -393,10 +383,9 @@ function evaluate_less_than(
     const right = rightResult.value;
 
     if (!left || !right || left.type !== "number" || right.type !== "number") {
-      return error(
-        new Error(
-          `Comparison requires numbers, got ${left?.type || "undefined"} and ${right?.type || "undefined"}`,
-        ),
+      return locatedError(
+        `Comparison requires numbers, got ${left?.type || "undefined"} and ${right?.type || "undefined"}`,
+        args[i].location || args[i + 1].location,
       );
     }
 
@@ -413,10 +402,10 @@ function evaluate_less_than(
 function evaluate_less_equal(
   environment: Environment,
   args: Expr[],
-): Result<Expr, Error> {
+): Result<Expr, LocatedError> {
   if (args.length < 2) {
-    return error(
-      new Error("Less than or equal (<=) requires at least 2 arguments"),
+    return locatedError(
+      "Less than or equal (<=) requires at least 2 arguments",
     );
   }
 
@@ -435,10 +424,9 @@ function evaluate_less_equal(
     const right = rightResult.value;
 
     if (!left || !right || left.type !== "number" || right.type !== "number") {
-      return error(
-        new Error(
-          `Comparison requires numbers, got ${left?.type || "undefined"} and ${right?.type || "undefined"}`,
-        ),
+      return locatedError(
+        `Comparison requires numbers, got ${left?.type || "undefined"} and ${right?.type || "undefined"}`,
+        args[i].location || args[i + 1].location,
       );
     }
 
@@ -455,9 +443,9 @@ function evaluate_less_equal(
 function evaluate_equal(
   environment: Environment,
   args: Expr[],
-): Result<Expr, Error> {
+): Result<Expr, LocatedError> {
   if (args.length < 2) {
-    return error(new Error("Equality (=) requires at least 2 arguments"));
+    return locatedError("Equality (=) requires at least 2 arguments");
   }
 
   const firstResult = evaluate(environment, args[0]);
@@ -466,7 +454,10 @@ function evaluate_equal(
   }
   const first = firstResult.value;
   if (!first) {
-    return error(new Error("Cannot evaluate first argument for equality"));
+    return locatedError(
+      "Cannot evaluate first argument for equality",
+      args[0].location,
+    );
   }
 
   for (let i = 1; i < args.length; i++) {
@@ -477,7 +468,10 @@ function evaluate_equal(
 
     const arg = argResult.value;
     if (!arg) {
-      return error(new Error(`Cannot evaluate argument ${i} for equality`));
+      return locatedError(
+        `Cannot evaluate argument ${i} for equality`,
+        args[i].location,
+      );
     }
 
     // Check if types are different
@@ -499,8 +493,9 @@ function evaluate_equal(
         isEqual = first.value === (arg as Bool).value;
         break;
       default:
-        return error(
-          new Error(`Equality comparison not supported for type ${first.type}`),
+        return locatedError(
+          `Equality comparison not supported for type ${first.type}`,
+          args[0].location,
         );
     }
 

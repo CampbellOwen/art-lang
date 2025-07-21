@@ -521,7 +521,7 @@ describe("Interpreter", () => {
           type: "list",
 
           elements: [
-            { type: "symbol", value: "*" },
+            { type: "symbol", value: "animate" },
             { type: "number", value: 5 },
             { type: "number", value: 3 },
           ],
@@ -534,7 +534,7 @@ describe("Interpreter", () => {
       expect(results[0].type).toBe("error");
       if (results[0].type === "error") {
         expect(results[0].value.message).toBe(
-          "Unimplemented built-in function *",
+          "Unimplemented built-in function animate",
         );
       }
     });
