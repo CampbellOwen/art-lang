@@ -16,6 +16,10 @@ export function parse(input: string): Result<Program, Error[]> {
   const program: Expr[] = [];
 
   while (iterator.hasNext()) {
+    skipWhitespace(iterator);
+    if (!iterator.hasNext()) {
+      break;
+    }
     const res = parse_inner(iterator);
     if (isOk(res)) {
       if (res.value) {
@@ -50,6 +54,7 @@ function parse_inner(it: PeekableIterator<string>): Result<Expr, Error[]> {
   const next = it.peek();
   if (next === undefined) {
     // End of input after whitespace is valid - return null to signal completion
+    console.log("returning null");
     return ok(null as any);
   }
 
