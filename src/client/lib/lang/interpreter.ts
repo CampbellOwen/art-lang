@@ -1,8 +1,8 @@
 import { Canvas, MockCanvas } from "./canvas";
 import { BUILTIN_SYMBOLS } from "./consts";
-import { error, isSymbol, ok, Result } from "./core";
+import { error, isOk, isSymbol, ok, Result } from "./core";
 import { Environment, SymbolTable } from "./environment";
-import { Expr, List, Program, Symbol } from "./types";
+import { Expr, List, Num, Program, Symbol } from "./types";
 
 export function run(program: Program, canvas: Canvas = new MockCanvas()) {
   const environment = { symbolTable: new SymbolTable(), canvas };
@@ -19,6 +19,9 @@ export function evaluate(
       return evaluate_list(environment, expr);
     case "symbol":
       return evaluate_symbol(environment, expr);
+    case "number":
+    case "string":
+      return ok(expr);
     default:
       return error(new Error(`Unimplemented expr ${expr}`));
   }
@@ -51,7 +54,7 @@ function evaluate_symbol(
   if (val !== undefined) {
     return ok(val);
   }
-  return error(new Error(`Symbol ${symbol} undefined`));
+  return error(new Error(`Symbol ${symbol.value} undefined`));
 }
 
 function evaluate_builtin(
@@ -59,9 +62,42 @@ function evaluate_builtin(
   builtinName: string,
   args: Expr[],
 ): Result<Expr | undefined, Error> {
-  return error(
-    new Error(
-      `Unimplemented built-in function ${builtinName} with args ${args}`,
-    ),
-  );
+  switch (builtinName) {
+    case "+":
+      return evaluate_add(environment, args);
+    default:
+      return error(new Error(`Unimplemented built-in function ${builtinName}`));
+  }
+}
+
+function evaluate_add(
+  environment: Environment,
+  args: Expr[],
+): Result<Expr, Error> {
+  if (args.length === 0) {
+    const result: Num = { type: "number", location: 0, value: 0 };
+    return ok(result);
+  }
+
+  let sum = 0;
+  for (const arg of args) {
+    const evaluatedResult = evaluate(environment, arg);
+    if (!isOk(evaluatedResult)) {
+      return evaluatedResult;
+    }
+
+    const evaluated = evaluatedResult.value;
+    if (!evaluated || evaluated.type !== "number") {
+      return error(
+        new Error(
+          `Addition requires numbers, got ${evaluated?.type || "undefined"}`,
+        ),
+      );
+    }
+
+    sum += evaluated.value;
+  }
+
+  const result: Num = { type: "number", location: 0, value: sum };
+  return ok(result);
 }
