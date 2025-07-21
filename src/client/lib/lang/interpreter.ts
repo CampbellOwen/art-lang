@@ -65,6 +65,8 @@ function evaluate_builtin(
   switch (builtinName) {
     case "+":
       return evaluate_add(environment, args);
+    case "-":
+      return evaluate_subtract(environment, args);
     default:
       return error(new Error(`Unimplemented built-in function ${builtinName}`));
   }
@@ -100,4 +102,64 @@ function evaluate_add(
 
   const result: Num = { type: "number", value: sum };
   return ok(result);
+}
+
+function evaluate_subtract(
+  environment: Environment,
+  args: Expr[],
+): Result<Expr, Error> {
+  if (args.length === 0) {
+    const result: Num = { type: "number", value: 0 };
+    return ok(result);
+  }
+
+  if (args.length === 1) {
+    // Unary minus: negate the single argument
+    const evaluatedResult = evaluate(environment, args[0]);
+    if (!isOk(evaluatedResult)) {
+      return evaluatedResult;
+    }
+
+    const evaluated = evaluatedResult.value;
+    if (!evaluated || evaluated.type !== "number") {
+      return error(
+        new Error(
+          `Subtraction requires numbers, got ${evaluated?.type || "undefined"}`,
+        ),
+      );
+    }
+
+    const result: Num = {
+      type: "number",
+      value: -evaluated.value,
+    };
+    return ok(result);
+  }
+
+  // Binary subtraction: first - second - third - ...
+  let result = 0;
+  for (let i = 0; i < args.length; i++) {
+    const evaluatedResult = evaluate(environment, args[i]);
+    if (!isOk(evaluatedResult)) {
+      return evaluatedResult;
+    }
+
+    const evaluated = evaluatedResult.value;
+    if (!evaluated || evaluated.type !== "number") {
+      return error(
+        new Error(
+          `Subtraction requires numbers, got ${evaluated?.type || "undefined"}`,
+        ),
+      );
+    }
+
+    if (i === 0) {
+      result = evaluated.value;
+    } else {
+      result -= evaluated.value;
+    }
+  }
+
+  const resultNum: Num = { type: "number", value: result };
+  return ok(resultNum);
 }

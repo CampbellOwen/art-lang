@@ -84,6 +84,7 @@ describe("Interpreter", () => {
       const program: List[] = [
         {
           type: "list",
+
           elements: [
             { type: "symbol", value: "+" },
             { type: "number", value: 1 },
@@ -257,6 +258,223 @@ describe("Interpreter", () => {
     });
   });
 
+  describe("- built-in function", () => {
+    it("should subtract two numbers", () => {
+      const program: List[] = [
+        {
+          type: "list",
+
+          elements: [
+            { type: "symbol", value: "-" },
+            { type: "number", value: 5 },
+            { type: "number", value: 3 },
+          ],
+        },
+      ];
+
+      const results = run(program, canvas);
+
+      expect(results).toHaveLength(1);
+      expect(results[0]).toEqual(ok({ type: "number", value: 2 }));
+    });
+
+    it("should subtract multiple numbers", () => {
+      const program: List[] = [
+        {
+          type: "list",
+
+          elements: [
+            { type: "symbol", value: "-" },
+            { type: "number", value: 10 },
+            { type: "number", value: 3 },
+            { type: "number", value: 2 },
+            { type: "number", value: 1 },
+          ],
+        },
+      ];
+
+      const results = run(program, canvas);
+
+      expect(results).toHaveLength(1);
+      expect(results[0]).toEqual(ok({ type: "number", value: 4 }));
+    });
+
+    it("should return 0 for subtraction with no arguments", () => {
+      const program: List[] = [
+        {
+          type: "list",
+
+          elements: [{ type: "symbol", value: "-" }],
+        },
+      ];
+
+      const results = run(program, canvas);
+
+      expect(results).toHaveLength(1);
+      expect(results[0]).toEqual(ok({ type: "number", value: 0 }));
+    });
+
+    it("should negate a single number (unary minus)", () => {
+      const program: List[] = [
+        {
+          type: "list",
+
+          elements: [
+            { type: "symbol", value: "-" },
+            { type: "number", value: 5 },
+          ],
+        },
+      ];
+
+      const results = run(program, canvas);
+
+      expect(results).toHaveLength(1);
+      expect(results[0]).toEqual(ok({ type: "number", value: -5 }));
+    });
+
+    it("should work with negative numbers", () => {
+      const program: List[] = [
+        {
+          type: "list",
+
+          elements: [
+            { type: "symbol", value: "-" },
+            { type: "number", value: -5 },
+            { type: "number", value: 3 },
+          ],
+        },
+      ];
+
+      const results = run(program, canvas);
+
+      expect(results).toHaveLength(1);
+      expect(results[0]).toEqual(ok({ type: "number", value: -8 }));
+    });
+
+    it("should work with decimal numbers", () => {
+      const program: List[] = [
+        {
+          type: "list",
+
+          elements: [
+            { type: "symbol", value: "-" },
+            { type: "number", value: 5.7 },
+            { type: "number", value: 2.2 },
+          ],
+        },
+      ];
+
+      const results = run(program, canvas);
+
+      expect(results).toHaveLength(1);
+      expect(results[0]).toEqual(ok({ type: "number", value: 3.5 }));
+    });
+
+    it("should evaluate symbol arguments before subtracting", () => {
+      const environment = { symbolTable: new SymbolTable(), canvas };
+      const xSymbol: Symbol = { type: "symbol", value: "x" };
+      const ySymbol: Symbol = { type: "symbol", value: "y" };
+
+      environment.symbolTable.set(xSymbol, {
+        type: "number",
+
+        value: 10,
+      });
+      environment.symbolTable.set(ySymbol, {
+        type: "number",
+
+        value: 3,
+      });
+
+      const expr: List = {
+        type: "list",
+
+        elements: [{ type: "symbol", value: "-" }, xSymbol, ySymbol],
+      };
+
+      const result = evaluate(environment, expr);
+
+      expect(result).toEqual(ok({ type: "number", value: 7 }));
+    });
+
+    it("should return error when subtracting non-numbers", () => {
+      const program: List[] = [
+        {
+          type: "list",
+
+          elements: [
+            { type: "symbol", value: "-" },
+            { type: "number", value: 5 },
+            { type: "string", value: "hello" },
+          ],
+        },
+      ];
+
+      const results = run(program, canvas);
+
+      expect(results).toHaveLength(1);
+      expect(results[0].type).toBe("error");
+      if (results[0].type === "error") {
+        expect(results[0].value.message).toBe(
+          "Subtraction requires numbers, got string",
+        );
+      }
+    });
+
+    it("should return error for unary minus with non-number", () => {
+      const program: List[] = [
+        {
+          type: "list",
+
+          elements: [
+            { type: "symbol", value: "-" },
+            { type: "string", value: "not a number" },
+          ],
+        },
+      ];
+
+      const results = run(program, canvas);
+
+      expect(results).toHaveLength(1);
+      expect(results[0].type).toBe("error");
+      if (results[0].type === "error") {
+        expect(results[0].value.message).toBe(
+          "Subtraction requires numbers, got string",
+        );
+      }
+    });
+
+    it("should return error when symbol evaluates to non-number", () => {
+      const environment = { symbolTable: new SymbolTable(), canvas };
+      const symbol: Symbol = { type: "symbol", value: "text" };
+
+      environment.symbolTable.set(symbol, {
+        type: "string",
+
+        value: "not a number",
+      });
+
+      const expr: List = {
+        type: "list",
+
+        elements: [
+          { type: "symbol", value: "-" },
+          { type: "number", value: 5 },
+          symbol,
+        ],
+      };
+
+      const result = evaluate(environment, expr);
+
+      expect(result.type).toBe("error");
+      if (result.type === "error") {
+        expect(result.value.message).toBe(
+          "Subtraction requires numbers, got string",
+        );
+      }
+    });
+  });
+
   describe("list evaluation", () => {
     it("should return error for empty list", () => {
       const program: List[] = [
@@ -303,7 +521,7 @@ describe("Interpreter", () => {
           type: "list",
 
           elements: [
-            { type: "symbol", value: "-" },
+            { type: "symbol", value: "*" },
             { type: "number", value: 5 },
             { type: "number", value: 3 },
           ],
@@ -316,7 +534,7 @@ describe("Interpreter", () => {
       expect(results[0].type).toBe("error");
       if (results[0].type === "error") {
         expect(results[0].value.message).toBe(
-          "Unimplemented built-in function -",
+          "Unimplemented built-in function *",
         );
       }
     });
