@@ -63,7 +63,7 @@ describe("Parser", () => {
     describe("Number parsing", () => {
       it("should parse positive integers", () => {
         const result = parse("123");
-        // This will fail until parser is implemented
+        expect(isOk(result)).toBe(true);
         if (isOk(result)) {
           expect(result.value).toHaveLength(1);
           expect(result.value[0]).toEqual({ type: "number", value: 123 });
@@ -72,6 +72,7 @@ describe("Parser", () => {
 
       it("should parse negative integers", () => {
         const result = parse("-456");
+        expect(isOk(result)).toBe(true);
         if (isOk(result)) {
           expect(result.value).toHaveLength(1);
           expect(result.value[0]).toEqual({ type: "number", value: -456 });
@@ -80,6 +81,7 @@ describe("Parser", () => {
 
       it("should parse floating point numbers", () => {
         const result = parse("3.14");
+        expect(isOk(result)).toBe(true);
         if (isOk(result)) {
           expect(result.value).toHaveLength(1);
           expect(result.value[0]).toEqual({ type: "number", value: 3.14 });
@@ -90,6 +92,7 @@ describe("Parser", () => {
     describe("String parsing", () => {
       it("should parse simple strings", () => {
         const result = parse('"hello"');
+        expect(isOk(result)).toBe(true);
         if (isOk(result)) {
           expect(result.value).toHaveLength(1);
           expect(result.value[0]).toEqual({ type: "string", value: "hello" });
@@ -98,6 +101,7 @@ describe("Parser", () => {
 
       it("should parse empty strings", () => {
         const result = parse('""');
+        expect(isOk(result)).toBe(true);
         if (isOk(result)) {
           expect(result.value).toHaveLength(1);
           expect(result.value[0]).toEqual({ type: "string", value: "" });
@@ -106,6 +110,7 @@ describe("Parser", () => {
 
       it("should parse strings with spaces", () => {
         const result = parse('"hello world"');
+        expect(isOk(result)).toBe(true);
         if (isOk(result)) {
           expect(result.value).toHaveLength(1);
           expect(result.value[0]).toEqual({
@@ -119,6 +124,7 @@ describe("Parser", () => {
     describe("Symbol parsing", () => {
       it("should parse simple symbols", () => {
         const result = parse("hello");
+        expect(isOk(result)).toBe(true);
         if (isOk(result)) {
           expect(result.value).toHaveLength(1);
           expect(result.value[0]).toEqual({ type: "symbol", value: "hello" });
@@ -127,6 +133,7 @@ describe("Parser", () => {
 
       it("should parse symbols with hyphens", () => {
         const result = parse("add-numbers");
+        expect(isOk(result)).toBe(true);
         if (isOk(result)) {
           expect(result.value).toHaveLength(1);
           expect(result.value[0]).toEqual({
@@ -138,6 +145,7 @@ describe("Parser", () => {
 
       it("should parse symbols with question marks", () => {
         const result = parse("empty?");
+        expect(isOk(result)).toBe(true);
         if (isOk(result)) {
           expect(result.value).toHaveLength(1);
           expect(result.value[0]).toEqual({ type: "symbol", value: "empty?" });
@@ -146,6 +154,7 @@ describe("Parser", () => {
 
       it("should parse symbols with exclamation marks", () => {
         const result = parse("do-it!");
+        expect(isOk(result)).toBe(true);
         if (isOk(result)) {
           expect(result.value).toHaveLength(1);
           expect(result.value[0]).toEqual({ type: "symbol", value: "do-it!" });
@@ -156,6 +165,7 @@ describe("Parser", () => {
     describe("List parsing", () => {
       it("should parse empty lists", () => {
         const result = parse("()");
+        expect(isOk(result)).toBe(true);
         if (isOk(result)) {
           expect(result.value).toHaveLength(1);
           expect(result.value[0]).toEqual({ type: "list", elements: [] });
@@ -164,6 +174,7 @@ describe("Parser", () => {
 
       it("should parse simple lists with one element", () => {
         const result = parse("(hello)");
+        expect(isOk(result)).toBe(true);
         if (isOk(result)) {
           expect(result.value).toHaveLength(1);
           expect(result.value[0]).toEqual({
@@ -175,6 +186,7 @@ describe("Parser", () => {
 
       it("should parse lists with multiple elements", () => {
         const result = parse("(+ 1 2)");
+        expect(isOk(result)).toBe(true);
         if (isOk(result)) {
           expect(result.value).toHaveLength(1);
           expect(result.value[0]).toEqual({
@@ -190,6 +202,7 @@ describe("Parser", () => {
 
       it("should parse nested lists", () => {
         const result = parse("(+ (- 5 3) 2)");
+        expect(isOk(result)).toBe(true);
         if (isOk(result)) {
           expect(result.value).toHaveLength(1);
           expect(result.value[0]).toEqual({
@@ -214,6 +227,7 @@ describe("Parser", () => {
     describe("Multiple expressions", () => {
       it("should parse multiple expressions on separate lines", () => {
         const result = parse("42\nhello\n(+ 1 2)");
+        expect(isOk(result)).toBe(true);
         if (isOk(result)) {
           expect(result.value).toHaveLength(3);
           expect(result.value[0]).toEqual({ type: "number", value: 42 });
@@ -231,6 +245,7 @@ describe("Parser", () => {
 
       it("should parse multiple expressions with whitespace", () => {
         const result = parse('  42   "hello"   (+ 1 2)  ');
+        expect(isOk(result)).toBe(true);
         if (isOk(result)) {
           expect(result.value).toHaveLength(3);
           expect(result.value[0]).toEqual({ type: "number", value: 42 });
@@ -250,6 +265,7 @@ describe("Parser", () => {
     describe("Real-world examples", () => {
       it("should parse function call with multiple arguments", () => {
         const result = parse("(circle 100 200 50)");
+        expect(isOk(result)).toBe(true);
         if (isOk(result)) {
           expect(result.value).toHaveLength(1);
           expect(result.value[0]).toEqual({
@@ -266,6 +282,7 @@ describe("Parser", () => {
 
       it("should parse function definition", () => {
         const result = parse("(define (square x) (* x x))");
+        expect(isOk(result)).toBe(true);
         if (isOk(result)) {
           expect(result.value).toHaveLength(1);
           expect(result.value[0]).toEqual({
@@ -335,6 +352,7 @@ describe("Parser", () => {
       it("should handle deeply nested structures", () => {
         const deeplyNested = "(((((hello)))))";
         const result = parse(deeplyNested);
+        expect(isOk(result)).toBe(true);
         if (isOk(result)) {
           expect(result.value).toHaveLength(1);
           // Should be deeply nested list structure
@@ -352,6 +370,7 @@ describe("Parser", () => {
 
       it("should handle mixed types in lists", () => {
         const result = parse('(42 "hello" world (+ 1 2))');
+        expect(isOk(result)).toBe(true);
         if (isOk(result)) {
           expect(result.value).toHaveLength(1);
           expect(result.value[0]).toEqual({
@@ -382,6 +401,7 @@ describe("Parser", () => {
           (+ 1
              2)
         `);
+        expect(isOk(result)).toBe(true);
         if (isOk(result)) {
           expect(result.value).toHaveLength(3);
           expect(result.value[0]).toEqual({ type: "number", value: 42 });
