@@ -49,6 +49,11 @@ function parse_inner(it: PeekableIterator<string>): Result<Expr, Error[]> {
     return parse_list(it);
   }
 
+  errors.push(
+    new Error(`Unexpected character ${next} at position ${location}`),
+  );
+  it.next();
+
   return error(errors);
 }
 
