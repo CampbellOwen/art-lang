@@ -338,6 +338,24 @@ describe("Parser", () => {
           });
         }
       });
+
+      it("should parse a list of numbers", () => {
+        const result = parse("(1 -5 3.14 0)");
+        expect(isOk(result)).toBe(true);
+        if (isOk(result)) {
+          expect(result.value).toHaveLength(1);
+          expect(result.value[0]).toEqual({
+            type: "list",
+            location: 0,
+            elements: [
+              { type: "number", location: 1, value: 1 },
+              { type: "number", location: 3, value: -5 },
+              { type: "number", location: 6, value: 3.14 },
+              { type: "number", location: 11, value: 0 },
+            ],
+          });
+        }
+      });
     });
 
     describe("Sequential expressions separated by whitespace", () => {
