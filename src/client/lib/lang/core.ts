@@ -1,4 +1,4 @@
-import { Expr, Symbol } from "./types";
+import { Bool, Expr, Symbol } from "./types";
 
 export type Ok<T> = { type: "ok"; value: T };
 export type Err<E> = { type: "error"; value: E };
@@ -63,12 +63,17 @@ export function isSymbol(expr: Expr): expr is Symbol {
   return expr.type === "symbol";
 }
 
+export function isBool(expr: Expr): expr is Bool {
+  return expr.type === "boolean";
+}
+
 export function debugPrint(expr: Expr): string {
   switch (expr.type) {
     case "string":
       return `"${expr.value}"`;
     case "number":
     case "symbol":
+    case "boolean":
       return `${expr.value}`;
     case "list": {
       const subExprs = expr.elements.map(debugPrint);

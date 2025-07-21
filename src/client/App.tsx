@@ -5,13 +5,14 @@ import * as React from "react";
 
 import reactLogo from "./assets/react.svg";
 import { parse } from "./lib/lang";
-import { evaluate, run } from "./lib/lang/interpreter";
+import { run } from "./lib/lang/interpreter";
 import { debugPrint, isErr, isOk } from "./lib/lang/core";
 
 function App() {
   const [count, setCount] = useState(0);
 
-  const input = "(+ 1 2) (* 10 2) (- 10 5 3) (/ 100 5)";
+  const input =
+    '(+ 1 2) (* 10 2) (- 10 5 3) (/ 100 5) (< 1 2) (> 1 2) (= 1 1) (= "hello" "hello")';
   React.useEffect(() => {
     const result = parse(input);
 
