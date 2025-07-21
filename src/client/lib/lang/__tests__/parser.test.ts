@@ -3,7 +3,7 @@ import { parse } from "../parser.js";
 import { isErr, isOk } from "../core.js";
 
 describe("Parser", () => {
-  describe("Current implementation (unfinished)", () => {
+  describe("Unimplemented parser behavior", () => {
     it("should return error for empty input", () => {
       const result = parse("");
       expect(isErr(result)).toBe(true);
@@ -58,9 +58,9 @@ describe("Parser", () => {
     });
   });
 
-  // These tests are for when the parser is fully implemented
-  describe("Future implementation tests (currently failing)", () => {
-    describe("Number parsing", () => {
+  // These tests verify the expected parser behavior
+  describe("Parser implementation requirements", () => {
+    describe("Integer and floating point number literals", () => {
       it("should parse positive integers", () => {
         const result = parse("123");
         expect(isOk(result)).toBe(true);
@@ -89,7 +89,7 @@ describe("Parser", () => {
       });
     });
 
-    describe("String parsing", () => {
+    describe("String literals with double quotes", () => {
       it("should parse simple strings", () => {
         const result = parse('"hello"');
         expect(isOk(result)).toBe(true);
@@ -121,7 +121,7 @@ describe("Parser", () => {
       });
     });
 
-    describe("Symbol parsing", () => {
+    describe("Symbolic identifiers and operators", () => {
       it("should parse simple symbols", () => {
         const result = parse("hello");
         expect(isOk(result)).toBe(true);
@@ -162,7 +162,7 @@ describe("Parser", () => {
       });
     });
 
-    describe("List parsing", () => {
+    describe("S-expressions (parenthesized lists)", () => {
       it("should parse empty lists", () => {
         const result = parse("()");
         expect(isOk(result)).toBe(true);
@@ -224,7 +224,7 @@ describe("Parser", () => {
       });
     });
 
-    describe("Multiple expressions", () => {
+    describe("Sequential expressions separated by whitespace", () => {
       it("should parse multiple expressions on separate lines", () => {
         const result = parse("42\nhello\n(+ 1 2)");
         expect(isOk(result)).toBe(true);
@@ -262,7 +262,7 @@ describe("Parser", () => {
       });
     });
 
-    describe("Real-world examples", () => {
+    describe("Complex nested structures and function definitions", () => {
       it("should parse function call with multiple arguments", () => {
         const result = parse("(circle 100 200 50)");
         expect(isOk(result)).toBe(true);
@@ -310,7 +310,7 @@ describe("Parser", () => {
       });
     });
 
-    describe("Error cases (when parser is implemented)", () => {
+    describe("Syntax error detection and reporting", () => {
       it("should return error for unmatched opening parenthesis", () => {
         const result = parse("(+ 1 2");
         expect(isErr(result)).toBe(true);
@@ -348,7 +348,7 @@ describe("Parser", () => {
       });
     });
 
-    describe("Edge cases", () => {
+    describe("Robustness with complex nesting and whitespace", () => {
       it("should handle deeply nested structures", () => {
         const deeplyNested = "(((((hello)))))";
         const result = parse(deeplyNested);
