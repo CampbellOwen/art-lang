@@ -1,5 +1,5 @@
 import { PeekableIterator, error, isErr, isOk, ok, type Result } from "./core";
-import type { Expr, List, Num, Program, Str } from "./types";
+import type { Expr, List, Num, Program, Str, Symbol } from "./types";
 
 function skipWhitespace(it: PeekableIterator<string>) {
   it.skipWhile((c) => c !== undefined && c.trim() === "");
@@ -25,6 +25,8 @@ export function parse(input: string): Result<Program, Error[]> {
       }
     } else {
       res.value.forEach((err) => errors.push(err));
+      // Advance iterator to prevent infinite loop on persistent errors
+      iterator.next();
     }
   }
 
@@ -47,8 +49,8 @@ function parse_inner(it: PeekableIterator<string>): Result<Expr, Error[]> {
 
   const next = it.peek();
   if (next === undefined) {
-    errors.push(new Error(`Unexpected end of input at position ${location}`));
-    return error(errors);
+    // End of input after whitespace is valid - return null to signal completion
+    return ok(null as any);
   }
 
   if (next === "(") {
@@ -60,12 +62,9 @@ function parse_inner(it: PeekableIterator<string>): Result<Expr, Error[]> {
   if (isNumber(next) || (next === "-" && isNumber(it.peek(1) ?? ""))) {
     return parse_number(it);
   }
-  errors.push(
-    new Error(`Unexpected character ${next} at position ${location}`),
-  );
-  it.next();
 
-  return error(errors);
+  // Everything else is treated as a symbol
+  return parse_symbol(it);
 }
 
 function parse_list(it: PeekableIterator<string>): Result<List, Error[]> {
@@ -176,4 +175,31 @@ function parse_string(it: PeekableIterator<string>): Result<Str, Error[]> {
   // If we get here, we reached end of input without finding closing quote
   errors.push(new Error(`Unterminated string literal at position ${location}`));
   return error(errors);
+}
+
+function parse_symbol(it: PeekableIterator<string>): Result<Symbol, Error[]> {
+  const errors: Error[] = [];
+  const location = it.pos();
+  let symbolValue = "";
+
+  // Collect characters that are valid for symbols
+  while (it.hasNext()) {
+    const char = it.peek();
+    if (char === undefined) break;
+
+    // Stop at whitespace, parentheses, or quotes
+    if (char.trim() === "" || char === "(" || char === ")" || char === '"') {
+      break;
+    }
+
+    symbolValue += it.next();
+  }
+
+  if (symbolValue === "") {
+    errors.push(new Error(`Empty symbol at position ${location}`));
+    return error(errors);
+  }
+
+  const symbol: Symbol = { type: "symbol", location, value: symbolValue };
+  return ok(symbol);
 }

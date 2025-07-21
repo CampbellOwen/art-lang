@@ -374,6 +374,24 @@ describe("Parser", () => {
           });
         }
       });
+
+      it("should parse a list with various symbol types", () => {
+        const result = parse("(+ add-numbers empty? do-it!)");
+        expect(isOk(result)).toBe(true);
+        if (isOk(result)) {
+          expect(result.value).toHaveLength(1);
+          expect(result.value[0]).toEqual({
+            type: "list",
+            location: 0,
+            elements: [
+              { type: "symbol", location: 1, value: "+" },
+              { type: "symbol", location: 3, value: "add-numbers" },
+              { type: "symbol", location: 15, value: "empty?" },
+              { type: "symbol", location: 22, value: "do-it!" },
+            ],
+          });
+        }
+      });
     });
 
     describe("Sequential expressions separated by whitespace", () => {
