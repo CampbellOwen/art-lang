@@ -3,9 +3,15 @@ import "./App.css";
 import { useState } from "react";
 
 import reactLogo from "./assets/react.svg";
+import { parse } from "./lib/lang";
 
 function App() {
   const [count, setCount] = useState(0);
+
+  const input = '(42 "hello" world (+ 1 2))       ';
+  const result = parse(input);
+  console.log(input);
+  console.log(result);
 
   return (
     <div className="App">
