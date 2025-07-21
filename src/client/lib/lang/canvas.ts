@@ -56,8 +56,8 @@ export interface Canvas {
 export class MockCanvas implements Canvas {
   public readonly width: number;
   public readonly height: number;
-  private operations: Array<{ type: string; args: any[] }> = [];
-  private transformStack: any[] = [];
+  private operations: Array<{ type: string; args: unknown[] }> = [];
+  private transformStack: unknown[] = [];
 
   constructor(width: number = 800, height: number = 600) {
     this.width = width;
@@ -65,7 +65,7 @@ export class MockCanvas implements Canvas {
   }
 
   // Method to inspect operations for testing
-  getOperations(): Array<{ type: string; args: any[] }> {
+  getOperations(): Array<{ type: string; args: unknown[] }> {
     return [...this.operations];
   }
 

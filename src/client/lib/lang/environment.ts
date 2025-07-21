@@ -1,4 +1,5 @@
 import { Canvas } from "./canvas";
+import type { Symbol, Expr } from "./types";
 
 export interface Environment {
   symbolTable: SymbolTable;
