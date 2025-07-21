@@ -253,6 +253,37 @@ describe("Parser", () => {
         }
       });
 
+      it("should parse nested empty lists", () => {
+        const result = parse("(((())))");
+        expect(isOk(result)).toBe(true);
+        if (isOk(result)) {
+          expect(result.value).toHaveLength(1);
+          expect(result.value[0]).toEqual({
+            type: "list",
+            location: 0,
+            elements: [
+              {
+                type: "list",
+                location: 1,
+                elements: [
+                  {
+                    type: "list",
+                    location: 2,
+                    elements: [
+                      {
+                        type: "list",
+                        location: 3,
+                        elements: [],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          });
+        }
+      });
+
       it("should parse simple lists with one element", () => {
         const result = parse("(hello)");
         expect(isOk(result)).toBe(true);
