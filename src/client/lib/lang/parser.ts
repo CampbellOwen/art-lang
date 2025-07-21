@@ -11,6 +11,7 @@ export function parse(input: string): Result<Program, Error[]> {
   do {
     next = iterator.next();
     if (!next.value) {
+      // Skip empty values
     }
   } while (!next.done);
 

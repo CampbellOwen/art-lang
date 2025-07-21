@@ -8,7 +8,11 @@
     "start": "NODE_ENV=production tsx src/server/main.ts",
     "build": "vite build",
     "lint": "eslint src",
-    "lint:fix": "eslint src --fix"
+    "lint:fix": "eslint src --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "yarn run lint && yarn run format:check",
+    "fix": "yarn run lint:fix && yarn run format"
   },
   "dependencies": {
     "express": "^5.1.0",
@@ -31,8 +35,11 @@
     "eslint-plugin-react": "^7.37.1",
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
     "eslint-plugin-react-refresh": "^0.4.12",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
     "globals": "^15.11.0",
     "nodemon": "^3.1.10",
+    "prettier": "^3.3.3",
     "typescript-eslint": "^8.8.0",
     "vite": "^6.3.3"
   }
