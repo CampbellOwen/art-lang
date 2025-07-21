@@ -1,58 +1,181 @@
 import "./App.css";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import * as React from "react";
 
-import reactLogo from "./assets/react.svg";
 import { parse } from "./lib/lang";
 import { run } from "./lib/lang/interpreter";
 import { debugPrint, isErr, isOk } from "./lib/lang/core";
 
 function App() {
-  const [count, setCount] = useState(0);
+  const [input, setInput] = useState(
+    '(+ 1 2) (* 10 2) (- 10 5 3) (/ 100 5) (< 1 2) (> 1 2) (= 1 1) (= "hello" "hello")',
+  );
+  const [results, setResults] = useState<string[]>([]);
+  const [errors, setErrors] = useState<string[]>([]);
 
-  const input =
-    '(+ 1 2) (* 10 2) (- 10 5 3) (/ 100 5) (< 1 2) (> 1 2) (= 1 1) (= "hello" "hello")';
-  React.useEffect(() => {
-    const result = parse(input);
-
-    if (isOk(result)) {
-      console.log(`Parsed:\n${result.value.map(debugPrint).join("\n")}`);
-      const evaluated = run(result.value);
-      evaluated.forEach((res) => {
-        if (isErr(res) || !res.value) {
-          console.log(res.value);
-        } else {
-          console.log(debugPrint(res.value));
-        }
-      });
-    } else {
-      console.log(result.value);
+  const evaluateExpression = useCallback((expression: string) => {
+    if (!expression.trim()) {
+      setResults([]);
+      setErrors([]);
+      return;
     }
-  }, [input]);
+
+    const parseResult = parse(expression);
+
+    if (isErr(parseResult)) {
+      setErrors(parseResult.value.map((err) => err.message));
+      setResults([]);
+      return;
+    }
+
+    setErrors([]);
+    const evaluated = run(parseResult.value);
+    const resultStrings: string[] = [];
+    const errorStrings: string[] = [];
+
+    evaluated.forEach((res, index) => {
+      if (isErr(res)) {
+        errorStrings.push(`Expression ${index + 1}: ${res.value.message}`);
+      } else if (!res.value) {
+        errorStrings.push(`Expression ${index + 1}: No result`);
+      } else {
+        resultStrings.push(debugPrint(res.value));
+      }
+    });
+
+    setResults(resultStrings);
+    if (errorStrings.length > 0) {
+      setErrors(errorStrings);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    evaluateExpression(input);
+  }, [input, evaluateExpression]);
 
   return (
     <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+      <h1>Art Language Interpreter</h1>
+
+      <div
+        className="interpreter-container"
+        style={{
+          maxWidth: "800px",
+          margin: "0 auto",
+          padding: "20px",
+          textAlign: "left",
+        }}
+      >
+        <div style={{ marginBottom: "20px" }}>
+          <label
+            htmlFor="expression-input"
+            style={{
+              display: "block",
+              marginBottom: "8px",
+              fontWeight: "bold",
+            }}
+          >
+            Enter Expression(s):
+          </label>
+          <textarea
+            id="expression-input"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Enter your expressions here, e.g., (+ 1 2) (* 3 4)"
+            style={{
+              width: "100%",
+              minHeight: "120px",
+              padding: "12px",
+              fontSize: "14px",
+              fontFamily: "monospace",
+              border: "2px solid #ccc",
+              borderRadius: "4px",
+              resize: "vertical",
+            }}
+          />
+        </div>
+
+        {errors.length > 0 && (
+          <div
+            style={{
+              marginBottom: "20px",
+              padding: "12px",
+              backgroundColor: "#fee",
+              border: "1px solid #fcc",
+              borderRadius: "4px",
+            }}
+          >
+            <h3 style={{ margin: "0 0 8px 0", color: "#c33" }}>Errors:</h3>
+            {errors.map((error, index) => (
+              <div
+                key={index}
+                style={{
+                  fontFamily: "monospace",
+                  fontSize: "14px",
+                  color: "#c33",
+                  marginBottom: "4px",
+                }}
+              >
+                {error}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {results.length > 0 && (
+          <div
+            style={{
+              padding: "12px",
+              backgroundColor: "#efe",
+              border: "1px solid #cfc",
+              borderRadius: "4px",
+            }}
+          >
+            <h3 style={{ margin: "0 0 8px 0", color: "#363" }}>Results:</h3>
+            {results.map((result, index) => (
+              <div
+                key={index}
+                style={{
+                  fontFamily: "monospace",
+                  fontSize: "14px",
+                  color: "#363",
+                  marginBottom: "4px",
+                }}
+              >
+                {result}
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div
+          style={{
+            marginTop: "30px",
+            padding: "15px",
+            backgroundColor: "#f8f9fa",
+            borderRadius: "4px",
+            fontSize: "14px",
+          }}
+        >
+          <h4 style={{ margin: "0 0 10px 0" }}>Available Operations:</h4>
+          <div style={{ fontFamily: "monospace" }}>
+            <div>
+              <strong>Arithmetic:</strong> + - * /
+            </div>
+            <div>
+              <strong>Comparison:</strong> &gt; &gt;= &lt; &lt;= =
+            </div>
+            <div>
+              <strong>Literals:</strong> numbers, "strings", true, false
+            </div>
+            <div>
+              <strong>Example:</strong> (+ 1 2) (* 3 4) (&gt; 5 3) (= "hello"
+              "world")
+            </div>
+          </div>
+        </div>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </div>
   );
 }
