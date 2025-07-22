@@ -12,8 +12,24 @@ import {
 import { Environment, SymbolTable } from "./environment";
 import { Bool, Expr, List, Num, Program, Str, Symbol } from "./types";
 
-export function run(program: Program, canvas: Canvas = new MockCanvas()) {
-  const environment = { symbolTable: new SymbolTable(), canvas };
+export function run(
+  program: Program,
+  canvas: Canvas = new MockCanvas(),
+  canvasWidth: number = 800,
+  canvasHeight: number = 600,
+) {
+  const symbolTable = new SymbolTable();
+
+  // Pre-populate width and height variables
+  const widthExpr: Num = { type: "number", value: canvasWidth };
+  const heightExpr: Num = { type: "number", value: canvasHeight };
+  const widthSymbol: Symbol = { type: "symbol", value: "width" };
+  const heightSymbol: Symbol = { type: "symbol", value: "height" };
+
+  symbolTable.set(widthSymbol, widthExpr);
+  symbolTable.set(heightSymbol, heightExpr);
+
+  const environment = { symbolTable, canvas };
 
   const results = program.map((expr) => evaluate(environment, expr));
   console.log(canvas);

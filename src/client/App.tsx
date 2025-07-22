@@ -124,7 +124,7 @@ class CanvasAdapter implements Canvas {
 
 function App() {
   const [input, setInput] = useState(
-    '(fill "red") (rect 50 50 100 50) (stroke "blue") (noFill) (rect 200 50 80 60) (fill "green") (noStroke) (rect 120 150 60 40) (stroke "purple") (fill "yellow") (rect 10 200 80 80)',
+    '(fill "red") (rect 50 50 100 50) (stroke "blue") (noFill) (rect (/ width 2) 100 80 60) (fill "green") (noStroke) (rect 120 150 60 40) (stroke "purple") (fill "yellow") (rect 10 (- height 100) (- width 100) 80)',
   );
   const [results, setResults] = useState<string[]>([]);
   const [errors, setErrors] = useState<ErrorDisplayInfo[]>([]);
@@ -199,7 +199,7 @@ function App() {
         }
       }
 
-      const evaluated = run(parseResult.value, canvasAdapter);
+      const evaluated = run(parseResult.value, canvasAdapter, 300, 300);
       const resultStrings: string[] = [];
       const errorInfos: ErrorDisplayInfo[] = [];
 
@@ -333,13 +333,16 @@ function App() {
               <strong>Control Flow:</strong> if, while
             </div>
             <div>
-              <strong>Variables:</strong> let, set
+              <strong>Variables:</strong> let, set, width, height
             </div>
             <div>
               <strong>Canvas:</strong> stroke, fill, noStroke, noFill, rgb, rect
             </div>
             <div>
               <strong>Literals:</strong> numbers, "strings", true, false
+            </div>
+            <div>
+              <strong>Built-in Variables:</strong> width (300), height (300)
             </div>
             <div style={{ marginTop: "10px" }}>
               <strong>If Statement Syntax:</strong>
@@ -386,6 +389,7 @@ function App() {
             <div style={{ marginTop: "10px" }}>
               <strong>Examples:</strong> (+ 1 2) (if (&gt; 5 3) "big" "small")
               (rgb 255 128 0) (stroke "red") (fill "blue") (rect 10 20 100 50)
+              (rect 0 0 width 20) (rect (- width 50) 0 50 height)
             </div>
             <div
               style={{ marginLeft: "10px", fontSize: "12px", marginTop: "5px" }}
@@ -401,6 +405,12 @@ function App() {
             </div>
             <div style={{ marginLeft: "10px", fontSize: "12px" }}>
               • (noStroke) (fill "yellow") (rect 110 0 50 30) - Only yellow fill
+            </div>
+            <div style={{ marginLeft: "10px", fontSize: "12px" }}>
+              • (rect 0 0 width 20) - Top border using canvas width
+            </div>
+            <div style={{ marginLeft: "10px", fontSize: "12px" }}>
+              • (rect (- width 50) 0 50 height) - Right border using expressions
             </div>
           </div>
         </div>
