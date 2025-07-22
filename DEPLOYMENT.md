@@ -23,11 +23,11 @@ The project is configured for automatic deployment using GitHub Actions:
 For one-time deployments or testing:
 
 ```bash
-npm run deploy
+yarn deploy
 ```
 
 This command will:
-1. Build the production bundle
+1. Build the production bundle using Yarn
 2. Deploy the `dist` folder to the `gh-pages` branch
 3. GitHub Pages will automatically serve from that branch
 
@@ -58,8 +58,8 @@ https://[your-username].github.io/art-lang/
 
 ### Build Failures
 - Check the Actions tab in your GitHub repository for error details
-- Ensure all tests pass locally: `npm test`
-- Verify the build works locally: `npm run build`
+- Ensure all tests pass locally: `yarn test`
+- Verify the build works locally: `yarn build`
 
 ### Asset Loading Issues
 - Ensure the base path is correctly set in `vite.config.ts`
@@ -84,6 +84,6 @@ art-lang.example.com
 
 ## Development vs Production
 
-- **Development** (`npm run dev`): Base path is `/` for local development
-- **Production** (`npm run build`): Base path is `/art-lang/` for GitHub Pages
+- **Development** (`yarn dev`): Base path is `/` for local development
+- **Production** (`yarn build`): Base path is `/art-lang/` for GitHub Pages
 - This ensures the app works correctly in both environments

@@ -7,7 +7,7 @@
     "dev": "nodemon -w src/server -x tsx src/server/main.ts",
     "start": "NODE_ENV=production tsx src/server/main.ts",
     "build": "vite build",
-    "deploy": "yarn build && npx gh-pages -d dist",
+    "deploy": "yarn build && yarn dlx gh-pages -d dist",
     "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest",
     "test:watch": "NODE_OPTIONS=\"--experimental-vm-modules\" jest --watch",
     "test:debug": "NODE_OPTIONS=\"--experimental-vm-modules\" node --inspect-brk node_modules/.bin/jest --runInBand --no-cache",
