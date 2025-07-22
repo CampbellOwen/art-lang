@@ -132,16 +132,19 @@
 
 .expression-input {
   width: 100%;
-  min-height: 120px;
+  min-height: 180px;
   padding: 12px;
-  font-size: 14px;
-  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+  font-size: 13px;
+  font-family:
+    "Fira Code", "Monaco", "Menlo", "Ubuntu Mono", "Consolas", monospace;
   border: 2px solid #ccc;
   border-radius: 4px;
   resize: vertical;
   transition: border-color 0.2s ease;
-  line-height: 1.4;
+  line-height: 1.6;
   background-color: #fafafa;
+  tab-size: 2;
+  white-space: pre;
 }
 
 .expression-input:focus {

@@ -124,7 +124,29 @@ class CanvasAdapter implements Canvas {
 
 function App() {
   const [input, setInput] = useState(
-    '(fill (rgb 20 25 40)) (rect 0 0 width height) (stroke (rgb 255 100 150)) (line 0 0 width height) (line 0 height width 0) (stroke (rgb 100 255 200)) (noFill) (rect 50 50 200 200) (rect 75 75 150 150) (rect 100 100 100 100) (stroke (rgb 255 255 100)) (line (/ width 2) 0 (/ width 2) height) (line 0 (/ height 2) width (/ height 2)) (fill (rgb 255 150 100)) (noStroke) (rect 125 125 50 50) (stroke "white") (rect 20 20 (- width 40) (- height 40))',
+    `(fill (rgb 20 25 40))
+(rect 0 0 width height)
+
+(stroke (rgb 255 100 150))
+(line 0 0 width height)
+(line 0 height width 0)
+
+(stroke (rgb 100 255 200))
+(noFill)
+(rect 50 50 200 200)
+(rect 75 75 150 150)
+(rect 100 100 100 100)
+
+(stroke (rgb 255 255 100))
+(line (/ width 2) 0 (/ width 2) height)
+(line 0 (/ height 2) width (/ height 2))
+
+(fill (rgb 255 150 100))
+(noStroke)
+(rect 125 125 50 50)
+
+(stroke "white")
+(rect 20 20 (- width 40) (- height 40))`,
   );
   const [results, setResults] = useState<string[]>([]);
   const [errors, setErrors] = useState<ErrorDisplayInfo[]>([]);
@@ -431,7 +453,29 @@ function App() {
             <button
               onClick={() =>
                 setInput(
-                  '(fill (rgb 20 25 40)) (rect 0 0 width height) (stroke (rgb 255 100 150)) (line 0 0 width height) (line 0 height width 0) (stroke (rgb 100 255 200)) (noFill) (rect 50 50 200 200) (rect 75 75 150 150) (rect 100 100 100 100) (stroke (rgb 255 255 100)) (line (/ width 2) 0 (/ width 2) height) (line 0 (/ height 2) width (/ height 2)) (fill (rgb 255 150 100)) (noStroke) (rect 125 125 50 50) (stroke "white") (rect 20 20 (- width 40) (- height 40))',
+                  `(fill (rgb 20 25 40))
+(rect 0 0 width height)
+
+(stroke (rgb 255 100 150))
+(line 0 0 width height)
+(line 0 height width 0)
+
+(stroke (rgb 100 255 200))
+(noFill)
+(rect 50 50 200 200)
+(rect 75 75 150 150)
+(rect 100 100 100 100)
+
+(stroke (rgb 255 255 100))
+(line (/ width 2) 0 (/ width 2) height)
+(line 0 (/ height 2) width (/ height 2))
+
+(fill (rgb 255 150 100))
+(noStroke)
+(rect 125 125 50 50)
+
+(stroke "white")
+(rect 20 20 (- width 40) (- height 40))`,
                 )
               }
               className="example-button"
@@ -441,7 +485,24 @@ function App() {
             <button
               onClick={() =>
                 setInput(
-                  '(fill "black") (rect 0 0 width height) (stroke (rgb 255 50 100)) (let ((i 0)) (while (< i 20) (line (* i 15) 0 (- width (* i 15)) height) (set i (+ i 1)))) (stroke (rgb 100 200 255)) (let ((i 0)) (while (< i 20) (line 0 (* i 15) width (- height (* i 15))) (set i (+ i 1)))) (fill (rgb 255 255 100)) (noStroke) (rect (- (/ width 2) 25) (- (/ height 2) 25) 50 50)',
+                  `(fill "black")
+(rect 0 0 width height)
+
+(stroke (rgb 255 50 100))
+(let ((i 0))
+  (while (< i 20)
+    (line (* i 15) 0 (- width (* i 15)) height)
+    (set i (+ i 1))))
+
+(stroke (rgb 100 200 255))
+(let ((i 0))
+  (while (< i 20)
+    (line 0 (* i 15) width (- height (* i 15)))
+    (set i (+ i 1))))
+
+(fill (rgb 255 255 100))
+(noStroke)
+(rect (- (/ width 2) 25) (- (/ height 2) 25) 50 50)`,
                 )
               }
               className="example-button"
@@ -451,7 +512,25 @@ function App() {
             <button
               onClick={() =>
                 setInput(
-                  "(stroke (rgb 255 100 200)) (let ((size 40) (spacing 60)) (let ((x 30)) (while (< x width) (let ((y 30)) (while (< y height) (rect x y size size) (set y (+ y spacing)))) (set x (+ x spacing))))) (noFill) (stroke (rgb 100 255 200)) (let ((x 45)) (while (< x width) (let ((y 45)) (while (< y height) (rect x y 30 30) (set y (+ y 60)))) (set x (+ x 60))))",
+                  `(stroke (rgb 255 100 200))
+(let ((size 40) (spacing 60))
+  (let ((x 30))
+    (while (< x width)
+      (let ((y 30))
+        (while (< y height)
+          (rect x y size size)
+          (set y (+ y spacing))))
+      (set x (+ x spacing)))))
+
+(noFill)
+(stroke (rgb 100 255 200))
+(let ((x 45))
+  (while (< x width)
+    (let ((y 45))
+      (while (< y height)
+        (rect x y 30 30)
+        (set y (+ y 60))))
+    (set x (+ x 60))))`,
                 )
               }
               className="example-button"
