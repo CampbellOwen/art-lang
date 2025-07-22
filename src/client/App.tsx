@@ -475,37 +475,38 @@ function App() {
             <button
               onClick={() =>
                 setInput(
-                  `; Deep purple background
-(fill (rgb 15 10 30))
+                  `; Ocean blue background
+(fill (rgb 10 30 60))
 (rect 0 0 width height)
 
-; Create radiating lines from center
-(stroke (rgb 255 150 200))
-(let ((centerX (/ width 2)) (centerY (/ height 2)) (i 0))
-  (while (< i 36)
-    (let ((angle (* i 10))
-          (x2 (+ centerX (* 120 1)))
-          (y2 centerY))
-      (line centerX centerY x2 y2))
-    (set i (+ i 1))))
+; Create wave-like horizontal lines
+(stroke (rgb 100 200 255))
+(let ((y 50) (wave 0))
+  (while (< y height)
+    (let ((x 0))
+      (while (< x width)
+        (let ((waveHeight (+ y (* 10 (+ 1 1)))))
+          (line x y (+ x 20) waveHeight))
+        (set x (+ x 40))))
+    (set y (+ y 60))))
 
-; Add concentric squares with gradient colors
-(noFill)
-(let ((size 30))
-  (while (< size 150)
-    (stroke (rgb (+ 100 size) (+ 50 (/ size 2)) 255))
-    (rect (- (/ width 2) (/ size 2)) (- (/ height 2) (/ size 2)) size size)
-    (set size (+ size 20))))
-
-; Bright center dot
-(fill (rgb 255 255 150))
+; Add floating rectangles like islands
+(fill (rgb 255 200 100))
 (noStroke)
-(rect (- (/ width 2) 8) (- (/ height 2) 8) 16 16)`,
+(rect 50 80 60 40)
+(rect 180 150 80 30)
+(rect 80 220 50 25)
+
+; White foam caps
+(fill "white")
+(rect 45 75 70 8)
+(rect 175 145 90 8)
+(rect 75 215 60 8)`,
                 )
               }
               className="example-button"
             >
-              Starburst Mandala
+              Ocean Waves
             </button>
             <button
               onClick={() =>
