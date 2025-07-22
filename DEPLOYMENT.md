@@ -6,16 +6,17 @@ This guide explains how to deploy the Art Language Interpreter to GitHub Pages.
 
 The project is configured for automatic deployment using GitHub Actions:
 
-1. **Push to main branch** - Any push to the `main` branch will automatically trigger a build and deployment
+1. **Push to master branch** - Any push to the `master` branch will automatically trigger a build and deployment
 2. **Pull request builds** - PRs will build but not deploy, allowing you to test changes
 3. **Automatic testing** - The deployment runs tests before building to ensure quality
+4. **Note**: Make sure your repository's default branch is `master` (not `main`)
 
 ### Setup Steps
 
 1. Go to your GitHub repository settings
 2. Navigate to **Pages** in the left sidebar
 3. Under **Source**, select **GitHub Actions**
-4. That's it! The next push to `main` will deploy automatically
+4. That's it! The next push to `master` will deploy automatically
 
 ## Manual Deployment
 
