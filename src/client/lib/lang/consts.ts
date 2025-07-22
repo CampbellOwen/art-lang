@@ -11,6 +11,7 @@ export const BUILTIN_SYMBOLS = [
   "animate",
   "define",
   "let",
+  "set",
   "fill",
   "stroke",
   "line",

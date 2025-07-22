@@ -103,6 +103,8 @@ function evaluate_builtin(
       return evaluate_if(environment, args);
     case "let":
       return evaluate_let(environment, args);
+    case "set":
+      return evaluate_set(environment, args);
     default:
       return locatedError(`Unimplemented built-in function ${builtinName}`);
   }
@@ -649,4 +651,40 @@ function evaluate_let(
   return (
     results.at(-1) ?? locatedError("Nothing to evaluate", args.at(0)?.location)
   );
+}
+
+function evaluate_set(
+  environment: Environment,
+  args: Expr[],
+): Result<Expr, LocatedError> {
+  if (args.length !== 2) {
+    return locatedError("set requires 2 arguments", args.at(0)?.location);
+  }
+
+  const [first, second] = args;
+
+  const symbol =
+    first.type === "symbol" ? ok(first) : evaluate(environment, first);
+  if (
+    isErr(symbol) ||
+    symbol.value === undefined ||
+    symbol.value?.type !== "symbol" ||
+    environment.symbolTable.lookup(symbol.value) === undefined
+  ) {
+    return locatedError(
+      "The first argument to set must be a symbol in scope",
+      first.location,
+    );
+  }
+
+  const val = evaluate(environment, second);
+  if (isErr(val) || val.value === undefined) {
+    return locatedError(
+      "The second argument to set must be an expression",
+      second.location,
+    );
+  }
+
+  environment.symbolTable.set(symbol.value, val.value);
+  return ok(val.value);
 }
