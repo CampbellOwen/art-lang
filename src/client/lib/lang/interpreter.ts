@@ -1,6 +1,14 @@
 import { Canvas, MockCanvas } from "./canvas";
 import { BUILTIN_SYMBOLS } from "./consts";
-import { isOk, isSymbol, ok, locatedError, Result, LocatedError } from "./core";
+import {
+  isOk,
+  isSymbol,
+  ok,
+  locatedError,
+  Result,
+  LocatedError,
+  isErr,
+} from "./core";
 import { Environment, SymbolTable } from "./environment";
 import { Bool, Expr, List, Num, Program, Str, Symbol } from "./types";
 
@@ -91,6 +99,8 @@ function evaluate_builtin(
       return evaluate_less_equal(environment, args);
     case "=":
       return evaluate_equal(environment, args);
+    case "let":
+      return evaluate_let(environment, args);
     default:
       return locatedError(`Unimplemented built-in function ${builtinName}`);
   }
@@ -507,4 +517,61 @@ function evaluate_equal(
 
   const result: Bool = { type: "boolean", value: true };
   return ok(result);
+}
+
+function evaluate_let(
+  environment: Environment,
+  args: Expr[],
+): Result<Expr | undefined, LocatedError> {
+  if (args.length < 2) {
+    return locatedError(
+      "Not enough arguments to `let` statement",
+      args.at(0)?.location,
+    );
+  }
+
+  const [bindings, ...expressions] = args;
+  const symbolTable = environment.symbolTable.enterScope();
+  const scopedEnvironment = { symbolTable, canvas: environment.canvas };
+
+  if (bindings.type !== "list") {
+    return locatedError(
+      "First argument to `let` must be a list",
+      bindings.location,
+    );
+  }
+
+  for (const binding of bindings.elements) {
+    if (
+      binding.type !== "list" ||
+      binding.elements.length !== 2 ||
+      binding.elements[0].type !== "symbol"
+    ) {
+      return locatedError(
+        "Bindings must be of form (symbol expr)",
+        binding.location,
+      );
+    }
+
+    const [sym, expr] = binding.elements;
+    const evaluated_expr = evaluate(scopedEnvironment, expr);
+    if (isErr(evaluated_expr)) {
+      return evaluated_expr;
+    }
+
+    if (evaluated_expr.value === undefined) {
+      return locatedError(
+        "Expression did not evaluate to an expression",
+        expr.location,
+      );
+    }
+
+    symbolTable.set(sym, evaluated_expr.value);
+  }
+
+  const results = expressions.map((exp) => evaluate(scopedEnvironment, exp));
+
+  return (
+    results.at(-1) ?? locatedError("Nothing to evaluate", args.at(0)?.location)
+  );
 }
