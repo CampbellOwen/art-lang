@@ -222,6 +222,48 @@
   margin: 0 auto;
 }
 
+/* Examples Section */
+.examples-section {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f0f8ff;
+  border-radius: 4px;
+  border: 1px solid #d4e6f1;
+}
+
+.examples-title {
+  margin: 0 0 15px 0;
+  color: #2c3e50;
+  font-size: 16px;
+}
+
+.examples-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.example-button {
+  padding: 8px 16px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.example-button:hover {
+  background-color: #2980b9;
+}
+
+.example-button:active {
+  background-color: #21618c;
+  transform: translateY(1px);
+}
+
 @media (max-width: 600px) {
   .interpreter-container {
     padding: 10px;
@@ -244,5 +286,14 @@
   .art-canvas {
     width: 250px;
     height: 250px;
+  }
+
+  .examples-buttons {
+    flex-direction: column;
+  }
+
+  .example-button {
+    width: 100%;
+    padding: 10px;
   }
 }
