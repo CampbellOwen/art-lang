@@ -114,6 +114,10 @@ function evaluate_builtin(
       return evaluate_stroke(environment, args);
     case "fill":
       return evaluate_fill(environment, args);
+    case "noStroke":
+      return evaluate_noStroke(environment, args);
+    case "noFill":
+      return evaluate_noFill(environment, args);
     default:
       return locatedError(`Unimplemented built-in function ${builtinName}`);
   }
@@ -867,6 +871,41 @@ function evaluate_fill(
   // Return undefined (no return value)
   return ok(undefined);
 }
+
+function evaluate_noStroke(
+  environment: Environment,
+  args: Expr[],
+): Result<Expr | undefined, LocatedError> {
+  if (args.length !== 0) {
+    return locatedError("noStroke requires no arguments: (noStroke)");
+  }
+
+  // Set the strokeStyle to "none" to disable stroking
+  environment.canvas.strokeStyle = "none";
+
+  // Return undefined (no return value)
+  return ok(undefined);
+}
+
+function evaluate_noFill(
+  environment: Environment,
+  args: Expr[],
+): Result<Expr | undefined, LocatedError> {
+  if (args.length !== 0) {
+    return locatedError("noFill requires no arguments: (noFill)");
+  }
+
+  // Set the fillStyle to "none" to disable filling
+  environment.canvas.fillStyle = "none";
+
+  // Return undefined (no return value)
+  return ok(undefined);
+}
+
+// NOTE: Drawing functions (rect, circle, etc.) should check for "none" values:
+// - If strokeStyle === "none", skip calling canvas.stroke()
+// - If fillStyle === "none", skip calling canvas.fill()
+// - This allows shapes to be drawn with only fill, only stroke, or both
 
 function evaluate_set(
   environment: Environment,

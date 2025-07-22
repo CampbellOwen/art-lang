@@ -17,7 +17,7 @@ interface ErrorDisplayInfo {
 
 function App() {
   const [input, setInput] = useState(
-    '(+ 1 2) (* 10 2) (- 10 5 3) (/ 100 5) (< 1 2) (> 1 2) (= 1 1) (= "hello" "hello") (if true "yes" "no") (if (> 5 3) 42 99) (if 0 "truthy" "falsy") (rgb 255 128 0) (stroke "red") (fill "blue") (fill (rgb 0 255 0))',
+    '(+ 1 2) (* 10 2) (- 10 5 3) (/ 100 5) (< 1 2) (> 1 2) (= 1 1) (= "hello" "hello") (if true "yes" "no") (if (> 5 3) 42 99) (if 0 "truthy" "falsy") (rgb 255 128 0) (stroke "red") (fill "blue") (noStroke) (noFill)',
   );
   const [results, setResults] = useState<string[]>([]);
   const [errors, setErrors] = useState<ErrorDisplayInfo[]>([]);
@@ -190,7 +190,7 @@ function App() {
               <strong>Variables:</strong> let, set
             </div>
             <div>
-              <strong>Canvas:</strong> stroke, fill, rgb
+              <strong>Canvas:</strong> stroke, fill, noStroke, noFill, rgb
             </div>
             <div>
               <strong>Literals:</strong> numbers, "strings", true, false
@@ -217,8 +217,26 @@ function App() {
               (while condition expr1 expr2 ...)
             </div>
             <div style={{ marginTop: "10px" }}>
+              <strong>Canvas Functions:</strong>
+            </div>
+            <div style={{ marginLeft: "10px", fontSize: "12px" }}>
+              • (stroke "color") - Set stroke color for outlines
+            </div>
+            <div style={{ marginLeft: "10px", fontSize: "12px" }}>
+              • (fill "color") - Set fill color for shapes
+            </div>
+            <div style={{ marginLeft: "10px", fontSize: "12px" }}>
+              • (noStroke) - Disable stroke/outline for shapes
+            </div>
+            <div style={{ marginLeft: "10px", fontSize: "12px" }}>
+              • (noFill) - Disable fill for shapes
+            </div>
+            <div style={{ marginLeft: "10px", fontSize: "12px" }}>
+              • (rgb r g b) - Create RGB color string
+            </div>
+            <div style={{ marginTop: "10px" }}>
               <strong>Examples:</strong> (+ 1 2) (if (&gt; 5 3) "big" "small")
-              (rgb 255 128 0) (stroke "red") (fill "blue") (fill (rgb 0 255 0))
+              (rgb 255 128 0) (stroke "red") (fill "blue") (noStroke) (noFill)
             </div>
           </div>
         </div>
