@@ -65,9 +65,31 @@ https://[your-username].github.io/art-lang/
 - Ensure the base path is correctly set in `vite.config.ts`
 - Check that `.nojekyll` file exists in the `public` directory
 
+### Git Exit Code 128 Error
+If you see "The process '/usr/bin/git' failed with exit code 128":
+
+1. **Check Repository Settings**:
+   - Go to Settings → Pages
+   - Under "Source", select **"GitHub Actions"** (not "Deploy from branch")
+   
+2. **Verify Workflow Permissions**:
+   - Go to Settings → Actions → General
+   - Under "Workflow permissions", select **"Read and write permissions"**
+   - Check **"Allow GitHub Actions to create and approve pull requests"**
+
+3. **Enable Actions**:
+   - Go to Settings → Actions → General
+   - Under "Actions permissions", select **"Allow all actions and reusable workflows"**
+
+4. **Alternative Deployment**:
+   If the main workflow fails, you can try the alternative approach:
+   - Rename `.github/workflows/deploy-alternative.yml.disabled` to `.github/workflows/deploy-alternative.yml`
+   - Disable the main workflow by renaming `deploy.yml` to `deploy.yml.disabled`
+
 ### Deployment Permissions
 - The GitHub Actions workflow uses `GITHUB_TOKEN` which is automatically available
-- No additional setup or secrets are required
+- Newer workflows use official GitHub Pages actions for better reliability
+- If using the alternative workflow, ensure repository permissions are set correctly
 
 ## Custom Domain (Optional)
 
