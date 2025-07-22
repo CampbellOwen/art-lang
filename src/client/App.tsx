@@ -124,35 +124,28 @@ class CanvasAdapter implements Canvas {
 
 function App() {
   const [input, setInput] = useState(
-    `; Dark blue background
-(fill (rgb 20 25 40))
+    `; Black background
+(fill "black")
 (rect 0 0 width height)
 
-; Pink diagonal lines
-(stroke (rgb 255 100 150))
-(line 0 0 width height)
-(line 0 height width 0)
+; Pink diagonal lines from top
+(stroke (rgb 255 50 100))
+(let ((i 0))
+  (while (< i 20)
+    (line (* i 15) 0 (- width (* i 15)) height)
+    (set i (+ i 1))))
 
-; Cyan nested squares
-(stroke (rgb 100 255 200))
-(noFill)
-(rect 50 50 200 200)
-(rect 75 75 150 150)
-(rect 100 100 100 100)
+; Blue diagonal lines from left
+(stroke (rgb 100 200 255))
+(let ((i 0))
+  (while (< i 20)
+    (line 0 (* i 15) width (- height (* i 15)))
+    (set i (+ i 1))))
 
-; Yellow cross lines
-(stroke (rgb 255 255 100))
-(line (/ width 2) 0 (/ width 2) height)
-(line 0 (/ height 2) width (/ height 2))
-
-; Orange center square
-(fill (rgb 255 150 100))
+; Yellow sun in center
+(fill (rgb 255 255 100))
 (noStroke)
-(rect 125 125 50 50)
-
-; White border
-(stroke "white")
-(rect 20 20 (- width 40) (- height 40))`,
+(rect (- (/ width 2) 25) (- (/ height 2) 25) 50 50)`,
   );
   const [results, setResults] = useState<string[]>([]);
   const [errors, setErrors] = useState<ErrorDisplayInfo[]>([]);
