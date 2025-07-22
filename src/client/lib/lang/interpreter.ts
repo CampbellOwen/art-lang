@@ -107,6 +107,8 @@ function evaluate_builtin(
       return evaluate_set(environment, args);
     case "while":
       return evaluate_while(environment, args);
+    case "rgb":
+      return evaluate_rgb(environment, args);
     default:
       return locatedError(`Unimplemented built-in function ${builtinName}`);
   }
@@ -731,6 +733,72 @@ function evaluate_while(
     value: false,
     location: conditionExpr.location,
   } as Bool);
+}
+
+function evaluate_rgb(
+  environment: Environment,
+  args: Expr[],
+): Result<Expr, LocatedError> {
+  if (args.length !== 3) {
+    return locatedError("rgb requires exactly 3 arguments: (rgb r g b)");
+  }
+
+  const [rExpr, gExpr, bExpr] = args;
+
+  // Evaluate red component
+  const rResult = evaluate(environment, rExpr);
+  if (!isOk(rResult)) {
+    return rResult;
+  }
+  const r = rResult.value;
+  if (!r || r.type !== "number") {
+    return locatedError(
+      `rgb red component must be a number, got ${r?.type || "undefined"}`,
+      rExpr.location,
+    );
+  }
+
+  // Evaluate green component
+  const gResult = evaluate(environment, gExpr);
+  if (!isOk(gResult)) {
+    return gResult;
+  }
+  const g = gResult.value;
+  if (!g || g.type !== "number") {
+    return locatedError(
+      `rgb green component must be a number, got ${g?.type || "undefined"}`,
+      gExpr.location,
+    );
+  }
+
+  // Evaluate blue component
+  const bResult = evaluate(environment, bExpr);
+  if (!isOk(bResult)) {
+    return bResult;
+  }
+  const b = bResult.value;
+  if (!b || b.type !== "number") {
+    return locatedError(
+      `rgb blue component must be a number, got ${b?.type || "undefined"}`,
+      bExpr.location,
+    );
+  }
+
+  // Clamp values to 0-255 range
+  const clampedR = Math.max(0, Math.min(255, Math.floor(r.value)));
+  const clampedG = Math.max(0, Math.min(255, Math.floor(g.value)));
+  const clampedB = Math.max(0, Math.min(255, Math.floor(b.value)));
+
+  // Create RGB color string
+  const colorString = `rgb(${clampedR},${clampedG},${clampedB})`;
+
+  const result: Str = {
+    type: "string",
+    value: colorString,
+    location: rExpr.location,
+  };
+
+  return ok(result);
 }
 
 function evaluate_set(

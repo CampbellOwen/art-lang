@@ -12,6 +12,7 @@ export const BUILTIN_SYMBOLS = [
   "define",
   "let",
   "set",
+  "rgb",
   "fill",
   "stroke",
   "line",
