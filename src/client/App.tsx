@@ -17,7 +17,7 @@ interface ErrorDisplayInfo {
 
 function App() {
   const [input, setInput] = useState(
-    '(+ 1 2) (* 10 2) (- 10 5 3) (/ 100 5) (< 1 2) (> 1 2) (= 1 1) (= "hello" "hello") (if true "yes" "no") (if (> 5 3) 42 99) (if 0 "truthy" "falsy")',
+    '(+ 1 2) (* 10 2) (- 10 5 3) (/ 100 5) (< 1 2) (> 1 2) (= 1 1) (= "hello" "hello") (if true "yes" "no") (if (> 5 3) 42 99) (if 0 "truthy" "falsy") (rgb 255 128 0) (stroke "red") (stroke (rgb 0 255 0))',
   );
   const [results, setResults] = useState<string[]>([]);
   const [errors, setErrors] = useState<ErrorDisplayInfo[]>([]);
@@ -80,16 +80,14 @@ function App() {
             line,
             column,
           });
-        } else if (!res.value) {
-          errorInfos.push({
-            message: `Expression ${index + 1}: No result`,
-            location: 0,
-            length: 1,
-            line: 1,
-            column: 1,
-          });
         } else {
-          resultStrings.push(debugPrint(res.value));
+          // Handle successful evaluations, including undefined results from side-effect functions
+          if (res.value !== undefined) {
+            resultStrings.push(debugPrint(res.value));
+          } else {
+            // For side-effect functions that return undefined, show a placeholder
+            resultStrings.push("(no return value)");
+          }
         }
       });
 
@@ -186,7 +184,13 @@ function App() {
               <strong>Comparison:</strong> &gt; &gt;= &lt; &lt;= =
             </div>
             <div>
-              <strong>Control Flow:</strong> if
+              <strong>Control Flow:</strong> if, while
+            </div>
+            <div>
+              <strong>Variables:</strong> let, set
+            </div>
+            <div>
+              <strong>Canvas:</strong> stroke, rgb
             </div>
             <div>
               <strong>Literals:</strong> numbers, "strings", true, false
@@ -207,8 +211,14 @@ function App() {
               • Booleans: true/false as expected
             </div>
             <div style={{ marginTop: "10px" }}>
+              <strong>While Loop Syntax:</strong>
+            </div>
+            <div style={{ marginLeft: "10px", fontSize: "12px" }}>
+              (while condition expr1 expr2 ...)
+            </div>
+            <div style={{ marginTop: "10px" }}>
               <strong>Examples:</strong> (+ 1 2) (if (&gt; 5 3) "big" "small")
-              (if 0 "yes" "no")
+              (rgb 255 128 0) (stroke "red") (stroke (rgb 0 255 0))
             </div>
           </div>
         </div>
