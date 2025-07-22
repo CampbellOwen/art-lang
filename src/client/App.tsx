@@ -17,7 +17,7 @@ interface ErrorDisplayInfo {
 
 function App() {
   const [input, setInput] = useState(
-    '(+ 1 2) (* 10 2) (- 10 5 3) (/ 100 5) (< 1 2) (> 1 2) (= 1 1) (= "hello" "hello") (if true "yes" "no") (if (> 5 3) 42 99) (if 0 "truthy" "falsy") (rgb 255 128 0) (stroke "red") (fill "blue") (noStroke) (noFill)',
+    '(+ 1 2) (* 10 2) (- 10 5 3) (/ 100 5) (< 1 2) (> 1 2) (= 1 1) (= "hello" "hello") (if true "yes" "no") (if (> 5 3) 42 99) (if 0 "truthy" "falsy") (rgb 255 128 0) (stroke "red") (fill "blue") (rect 10 20 100 50) (noFill) (rect 150 20 80 60) (noStroke) (fill "green") (rect 250 20 120 40)',
   );
   const [results, setResults] = useState<string[]>([]);
   const [errors, setErrors] = useState<ErrorDisplayInfo[]>([]);
@@ -190,7 +190,7 @@ function App() {
               <strong>Variables:</strong> let, set
             </div>
             <div>
-              <strong>Canvas:</strong> stroke, fill, noStroke, noFill, rgb
+              <strong>Canvas:</strong> stroke, fill, noStroke, noFill, rgb, rect
             </div>
             <div>
               <strong>Literals:</strong> numbers, "strings", true, false
@@ -234,9 +234,27 @@ function App() {
             <div style={{ marginLeft: "10px", fontSize: "12px" }}>
               • (rgb r g b) - Create RGB color string
             </div>
+            <div style={{ marginLeft: "10px", fontSize: "12px" }}>
+              • (rect x y width height) - Draw rectangle
+            </div>
             <div style={{ marginTop: "10px" }}>
               <strong>Examples:</strong> (+ 1 2) (if (&gt; 5 3) "big" "small")
-              (rgb 255 128 0) (stroke "red") (fill "blue") (noStroke) (noFill)
+              (rgb 255 128 0) (stroke "red") (fill "blue") (rect 10 20 100 50)
+            </div>
+            <div
+              style={{ marginLeft: "10px", fontSize: "12px", marginTop: "5px" }}
+            >
+              <strong>Rectangle Examples:</strong>
+            </div>
+            <div style={{ marginLeft: "10px", fontSize: "12px" }}>
+              • (stroke "red") (fill "blue") (rect 0 0 50 30) - Blue filled with
+              red outline
+            </div>
+            <div style={{ marginLeft: "10px", fontSize: "12px" }}>
+              • (noFill) (stroke "green") (rect 60 0 40 30) - Only green outline
+            </div>
+            <div style={{ marginLeft: "10px", fontSize: "12px" }}>
+              • (noStroke) (fill "yellow") (rect 110 0 50 30) - Only yellow fill
             </div>
           </div>
         </div>

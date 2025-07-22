@@ -16,6 +16,7 @@ export function run(program: Program, canvas: Canvas = new MockCanvas()) {
   const environment = { symbolTable: new SymbolTable(), canvas };
 
   const results = program.map((expr) => evaluate(environment, expr));
+  console.log(canvas);
   return results;
 }
 
@@ -118,6 +119,8 @@ function evaluate_builtin(
       return evaluate_noStroke(environment, args);
     case "noFill":
       return evaluate_noFill(environment, args);
+    case "rect":
+      return evaluate_rect(environment, args);
     default:
       return locatedError(`Unimplemented built-in function ${builtinName}`);
   }
@@ -906,6 +909,88 @@ function evaluate_noFill(
 // - If strokeStyle === "none", skip calling canvas.stroke()
 // - If fillStyle === "none", skip calling canvas.fill()
 // - This allows shapes to be drawn with only fill, only stroke, or both
+
+function evaluate_rect(
+  environment: Environment,
+  args: Expr[],
+): Result<Expr | undefined, LocatedError> {
+  if (args.length !== 4) {
+    return locatedError(
+      "rect requires exactly 4 arguments: (rect x y width height)",
+    );
+  }
+
+  const [xExpr, yExpr, widthExpr, heightExpr] = args;
+
+  // Evaluate x coordinate
+  const xResult = evaluate(environment, xExpr);
+  if (!isOk(xResult)) {
+    return xResult;
+  }
+  const x = xResult.value;
+  if (!x || x.type !== "number") {
+    return locatedError(
+      `rect x coordinate must be a number, got ${x?.type || "undefined"}`,
+      xExpr.location,
+    );
+  }
+
+  // Evaluate y coordinate
+  const yResult = evaluate(environment, yExpr);
+  if (!isOk(yResult)) {
+    return yResult;
+  }
+  const y = yResult.value;
+  if (!y || y.type !== "number") {
+    return locatedError(
+      `rect y coordinate must be a number, got ${y?.type || "undefined"}`,
+      yExpr.location,
+    );
+  }
+
+  // Evaluate width
+  const widthResult = evaluate(environment, widthExpr);
+  if (!isOk(widthResult)) {
+    return widthResult;
+  }
+  const width = widthResult.value;
+  if (!width || width.type !== "number") {
+    return locatedError(
+      `rect width must be a number, got ${width?.type || "undefined"}`,
+      widthExpr.location,
+    );
+  }
+
+  // Evaluate height
+  const heightResult = evaluate(environment, heightExpr);
+  if (!isOk(heightResult)) {
+    return heightResult;
+  }
+  const height = heightResult.value;
+  if (!height || height.type !== "number") {
+    return locatedError(
+      `rect height must be a number, got ${height?.type || "undefined"}`,
+      heightExpr.location,
+    );
+  }
+
+  // Draw the rectangle using path-based approach
+  environment.canvas.beginPath();
+  environment.canvas.rect(x.value, y.value, width.value, height.value);
+
+  // Fill if fillStyle is not "none"
+  if (environment.canvas.fillStyle !== "none") {
+    environment.canvas.fill();
+  }
+
+  // Stroke if strokeStyle is not "none"
+  if (environment.canvas.strokeStyle !== "none") {
+    environment.canvas.stroke();
+  }
+
+  // Return undefined (no return value)
+  return ok(undefined);
+}
 
 function evaluate_set(
   environment: Environment,
