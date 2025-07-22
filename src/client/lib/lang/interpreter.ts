@@ -105,6 +105,8 @@ function evaluate_builtin(
       return evaluate_let(environment, args);
     case "set":
       return evaluate_set(environment, args);
+    case "while":
+      return evaluate_while(environment, args);
     default:
       return locatedError(`Unimplemented built-in function ${builtinName}`);
   }
@@ -651,6 +653,85 @@ function evaluate_let(
   return (
     results.at(-1) ?? locatedError("Nothing to evaluate", args.at(0)?.location)
   );
+}
+
+function evaluate_while(
+  environment: Environment,
+  args: Expr[],
+): Result<Expr, LocatedError> {
+  let counter = 0;
+  if (args.length < 1) {
+    return locatedError(
+      "while requires at least 1 argument: (while condition expr1 expr2 ...)",
+    );
+  }
+
+  const [conditionExpr, ...bodyExprs] = args;
+
+  // Keep evaluating while condition is truthy
+  while (true) {
+    console.log(`Iteration ${counter}`);
+    if (counter > 1000000) {
+      return locatedError(
+        "Infinite loop protection, passed 1 million iterations",
+        args.at(0)?.location,
+      );
+    }
+    // Evaluate the condition
+    const conditionResult = evaluate(environment, conditionExpr);
+    if (!isOk(conditionResult)) {
+      return conditionResult;
+    }
+
+    const condition = conditionResult.value;
+    if (!condition) {
+      return locatedError(
+        "Cannot evaluate condition for while statement",
+        conditionExpr.location,
+      );
+    }
+
+    // Determine truthiness of condition
+    let isTruthy = false;
+    switch (condition.type) {
+      case "boolean":
+        isTruthy = condition.value;
+        break;
+      case "number":
+        isTruthy = condition.value !== 0;
+        break;
+      case "string":
+        isTruthy = condition.value !== "";
+        break;
+      default:
+        return locatedError(
+          `Unsupported condition type for while: ${condition.type}`,
+          conditionExpr.location,
+        );
+    }
+
+    // If condition is false, break out of loop
+    if (!isTruthy) {
+      break;
+    }
+
+    // Evaluate all body expressions
+    for (const bodyExpr of bodyExprs) {
+      const result = evaluate(environment, bodyExpr);
+      if (!isOk(result)) {
+        return result;
+      }
+    }
+
+    counter++;
+  }
+
+  // Return false when loop is done
+  return ok({
+    type: "boolean",
+    value: false,
+    location: conditionExpr.location,
+  } as Bool);
 }
 
 function evaluate_set(
