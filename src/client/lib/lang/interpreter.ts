@@ -15,7 +15,9 @@ import { Bool, Expr, List, Num, Program, Str, Symbol } from "./types";
 export function run(program: Program, canvas: Canvas = new MockCanvas()) {
   const environment = { symbolTable: new SymbolTable(), canvas };
 
-  return program.map((expr) => evaluate(environment, expr));
+  const results = program.map((expr) => evaluate(environment, expr));
+  console.log(canvas);
+  return results;
 }
 
 export function evaluate(
@@ -109,6 +111,8 @@ function evaluate_builtin(
       return evaluate_while(environment, args);
     case "rgb":
       return evaluate_rgb(environment, args);
+    case "stroke":
+      return evaluate_stroke(environment, args);
     default:
       return locatedError(`Unimplemented built-in function ${builtinName}`);
   }
@@ -799,6 +803,37 @@ function evaluate_rgb(
   };
 
   return ok(result);
+}
+
+function evaluate_stroke(
+  environment: Environment,
+  args: Expr[],
+): Result<Expr | undefined, LocatedError> {
+  if (args.length !== 1) {
+    return locatedError("stroke requires exactly 1 argument: (stroke color)");
+  }
+
+  const [colorExpr] = args;
+
+  // Evaluate the color argument
+  const colorResult = evaluate(environment, colorExpr);
+  if (!isOk(colorResult)) {
+    return colorResult;
+  }
+
+  const color = colorResult.value;
+  if (!color || color.type !== "string") {
+    return locatedError(
+      `stroke requires a string color, got ${color?.type || "undefined"}`,
+      colorExpr.location,
+    );
+  }
+
+  // Set the strokeStyle on the canvas
+  environment.canvas.strokeStyle = color.value;
+
+  // Return undefined (no return value)
+  return ok(undefined);
 }
 
 function evaluate_set(
