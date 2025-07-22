@@ -6,6 +6,7 @@ import * as React from "react";
 import { parse } from "./lib/lang";
 import { run } from "./lib/lang/interpreter";
 import { debugPrint, isErr, LocatedError } from "./lib/lang/core";
+import { Canvas } from "./lib/lang/canvas";
 
 interface ErrorDisplayInfo {
   message: string;
@@ -15,13 +16,120 @@ interface ErrorDisplayInfo {
   column: number;
 }
 
+// Adapter to wrap CanvasRenderingContext2D to match our Canvas interface
+class CanvasAdapter implements Canvas {
+  private ctx: CanvasRenderingContext2D;
+
+  constructor(ctx: CanvasRenderingContext2D) {
+    this.ctx = ctx;
+  }
+
+  get canvas() {
+    return { width: this.ctx.canvas.width, height: this.ctx.canvas.height };
+  }
+
+  get fillStyle() {
+    return this.ctx.fillStyle;
+  }
+  set fillStyle(value) {
+    this.ctx.fillStyle = value;
+  }
+
+  get strokeStyle() {
+    return this.ctx.strokeStyle;
+  }
+  set strokeStyle(value) {
+    this.ctx.strokeStyle = value;
+  }
+
+  get lineWidth() {
+    return this.ctx.lineWidth;
+  }
+  set lineWidth(value) {
+    this.ctx.lineWidth = value;
+  }
+
+  get font() {
+    return this.ctx.font;
+  }
+  set font(value) {
+    this.ctx.font = value;
+  }
+
+  beginPath() {
+    this.ctx.beginPath();
+  }
+  moveTo(x: number, y: number) {
+    this.ctx.moveTo(x, y);
+  }
+  lineTo(x: number, y: number) {
+    this.ctx.lineTo(x, y);
+  }
+  closePath() {
+    this.ctx.closePath();
+  }
+  rect(x: number, y: number, width: number, height: number) {
+    this.ctx.rect(x, y, width, height);
+  }
+  arc(
+    x: number,
+    y: number,
+    radius: number,
+    startAngle: number,
+    endAngle: number,
+    counterclockwise?: boolean,
+  ) {
+    this.ctx.arc(x, y, radius, startAngle, endAngle, counterclockwise);
+  }
+  fill() {
+    this.ctx.fill();
+  }
+  stroke() {
+    this.ctx.stroke();
+  }
+  fillText(text: string, x: number, y: number) {
+    this.ctx.fillText(text, x, y);
+  }
+  strokeText(text: string, x: number, y: number) {
+    this.ctx.strokeText(text, x, y);
+  }
+  clearRect(x: number, y: number, width: number, height: number) {
+    this.ctx.clearRect(x, y, width, height);
+  }
+  fillRect(x: number, y: number, width: number, height: number) {
+    this.ctx.fillRect(x, y, width, height);
+  }
+  strokeRect(x: number, y: number, width: number, height: number) {
+    this.ctx.strokeRect(x, y, width, height);
+  }
+  translate(x: number, y: number) {
+    this.ctx.translate(x, y);
+  }
+  rotate(angle: number) {
+    this.ctx.rotate(angle);
+  }
+  scale(x: number, y: number) {
+    this.ctx.scale(x, y);
+  }
+  resetTransform() {
+    this.ctx.resetTransform();
+  }
+  save() {
+    this.ctx.save();
+  }
+  restore() {
+    this.ctx.restore();
+  }
+}
+
 function App() {
   const [input, setInput] = useState(
-    '(+ 1 2) (* 10 2) (- 10 5 3) (/ 100 5) (< 1 2) (> 1 2) (= 1 1) (= "hello" "hello") (if true "yes" "no") (if (> 5 3) 42 99) (if 0 "truthy" "falsy") (rgb 255 128 0) (stroke "red") (fill "blue") (rect 10 20 100 50) (noFill) (rect 150 20 80 60) (noStroke) (fill "green") (rect 250 20 120 40)',
+    '(fill "red") (rect 50 50 100 50) (stroke "blue") (noFill) (rect 200 50 80 60) (fill "green") (noStroke) (rect 120 150 60 40) (stroke "purple") (fill "yellow") (rect 10 200 80 80)',
   );
   const [results, setResults] = useState<string[]>([]);
   const [errors, setErrors] = useState<ErrorDisplayInfo[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // Helper function to convert character position to line/column
   const getLineColumn = useCallback((input: string, position: number) => {
@@ -36,6 +144,13 @@ function App() {
       if (!expression.trim()) {
         setResults([]);
         setErrors([]);
+        // Clear canvas when input is empty
+        if (canvasRef.current) {
+          const ctx = canvasRef.current.getContext("2d");
+          if (ctx) {
+            ctx.clearRect(0, 0, 300, 300);
+          }
+        }
         return;
       }
 
@@ -63,7 +178,28 @@ function App() {
       }
 
       setErrors([]);
-      const evaluated = run(parseResult.value);
+
+      // Clear canvas before drawing
+      if (canvasRef.current) {
+        const ctx = canvasRef.current.getContext("2d");
+        if (ctx) {
+          ctx.clearRect(0, 0, 300, 300);
+          // Set default styles
+          ctx.fillStyle = "#000000";
+          ctx.strokeStyle = "#000000";
+        }
+      }
+
+      // Create canvas adapter for the interpreter
+      let canvasAdapter: Canvas | undefined;
+      if (canvasRef.current) {
+        const ctx = canvasRef.current.getContext("2d");
+        if (ctx) {
+          canvasAdapter = new CanvasAdapter(ctx);
+        }
+      }
+
+      const evaluated = run(parseResult.value, canvasAdapter);
       const resultStrings: string[] = [];
       const errorInfos: ErrorDisplayInfo[] = [];
 
@@ -131,6 +267,16 @@ function App() {
             onChange={(e) => setInput(e.target.value)}
             placeholder="Enter your expressions here, e.g., (+ 1 2) (* 3 4)"
             className={`expression-input ${errors.length > 0 ? "has-errors" : ""}`}
+          />
+        </div>
+
+        <div className="canvas-container">
+          <h3 className="canvas-title">Canvas Output:</h3>
+          <canvas
+            ref={canvasRef}
+            width={300}
+            height={300}
+            className="art-canvas"
           />
         </div>
 
