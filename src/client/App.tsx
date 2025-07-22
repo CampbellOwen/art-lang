@@ -475,34 +475,37 @@ function App() {
             <button
               onClick={() =>
                 setInput(
-                  `(fill (rgb 20 25 40))
+                  `; Deep purple background
+(fill (rgb 15 10 30))
 (rect 0 0 width height)
 
-(stroke (rgb 255 100 150))
-(line 0 0 width height)
-(line 0 height width 0)
+; Create radiating lines from center
+(stroke (rgb 255 150 200))
+(let ((centerX (/ width 2)) (centerY (/ height 2)) (i 0))
+  (while (< i 36)
+    (let ((angle (* i 10))
+          (x2 (+ centerX (* 120 1)))
+          (y2 centerY))
+      (line centerX centerY x2 y2))
+    (set i (+ i 1))))
 
-(stroke (rgb 100 255 200))
+; Add concentric squares with gradient colors
 (noFill)
-(rect 50 50 200 200)
-(rect 75 75 150 150)
-(rect 100 100 100 100)
+(let ((size 30))
+  (while (< size 150)
+    (stroke (rgb (+ 100 size) (+ 50 (/ size 2)) 255))
+    (rect (- (/ width 2) (/ size 2)) (- (/ height 2) (/ size 2)) size size)
+    (set size (+ size 20))))
 
-(stroke (rgb 255 255 100))
-(line (/ width 2) 0 (/ width 2) height)
-(line 0 (/ height 2) width (/ height 2))
-
-(fill (rgb 255 150 100))
+; Bright center dot
+(fill (rgb 255 255 150))
 (noStroke)
-(rect 125 125 50 50)
-
-(stroke "white")
-(rect 20 20 (- width 40) (- height 40))`,
+(rect (- (/ width 2) 8) (- (/ height 2) 8) 16 16)`,
                 )
               }
               className="example-button"
             >
-              Geometric Pattern
+              Starburst Mandala
             </button>
             <button
               onClick={() =>
@@ -534,30 +537,38 @@ function App() {
             <button
               onClick={() =>
                 setInput(
-                  `(stroke (rgb 255 100 200))
-(let ((size 40) (spacing 60))
-  (let ((x 30))
-    (while (< x width)
-      (let ((y 30))
-        (while (< y height)
-          (rect x y size size)
-          (set y (+ y spacing))))
-      (set x (+ x spacing)))))
+                  `; Gradient sky background
+(fill (rgb 10 5 25))
+(rect 0 0 width (/ height 2))
+(fill (rgb 40 20 60))
+(rect 0 (/ height 2) width (/ height 2))
 
-(noFill)
-(stroke (rgb 100 255 200))
-(let ((x 45))
-  (while (< x width)
-    (let ((y 45))
-      (while (< y height)
-        (rect x y 30 30)
-        (set y (+ y 60))))
-    (set x (+ x 60))))`,
+; Draw mountain silhouette with triangles
+(fill (rgb 25 15 35))
+(noStroke)
+(let ((i 0))
+  (while (< i 8)
+    (let ((x (* i 40)) (peakHeight (+ 80 (* (+ i 1) 15))))
+      (line x height (+ x 20) (- height peakHeight))
+      (line (+ x 20) (- height peakHeight) (+ x 40) height))
+    (set i (+ i 1))))
+
+; Add stars in the sky
+(fill (rgb 255 255 200))
+(let ((starCount 0))
+  (while (< starCount 15)
+    (let ((x (* starCount 19)) (y (+ 20 (* starCount 7))))
+      (rect (+ x 10) (+ y 5) 3 3))
+    (set starCount (+ starCount 1))))
+
+; Large moon
+(fill (rgb 255 255 180))
+(rect (- width 80) 40 40 40)`,
                 )
               }
               className="example-button"
             >
-              Grid Pattern
+              Night Landscape
             </button>
           </div>
         </div>
