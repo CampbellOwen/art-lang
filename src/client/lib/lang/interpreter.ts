@@ -16,7 +16,6 @@ export function run(program: Program, canvas: Canvas = new MockCanvas()) {
   const environment = { symbolTable: new SymbolTable(), canvas };
 
   const results = program.map((expr) => evaluate(environment, expr));
-  console.log(canvas);
   return results;
 }
 
@@ -113,6 +112,8 @@ function evaluate_builtin(
       return evaluate_rgb(environment, args);
     case "stroke":
       return evaluate_stroke(environment, args);
+    case "fill":
+      return evaluate_fill(environment, args);
     default:
       return locatedError(`Unimplemented built-in function ${builtinName}`);
   }
@@ -831,6 +832,37 @@ function evaluate_stroke(
 
   // Set the strokeStyle on the canvas
   environment.canvas.strokeStyle = color.value;
+
+  // Return undefined (no return value)
+  return ok(undefined);
+}
+
+function evaluate_fill(
+  environment: Environment,
+  args: Expr[],
+): Result<Expr | undefined, LocatedError> {
+  if (args.length !== 1) {
+    return locatedError("fill requires exactly 1 argument: (fill color)");
+  }
+
+  const [colorExpr] = args;
+
+  // Evaluate the color argument
+  const colorResult = evaluate(environment, colorExpr);
+  if (!isOk(colorResult)) {
+    return colorResult;
+  }
+
+  const color = colorResult.value;
+  if (!color || color.type !== "string") {
+    return locatedError(
+      `fill requires a string color, got ${color?.type || "undefined"}`,
+      colorExpr.location,
+    );
+  }
+
+  // Set the fillStyle on the canvas
+  environment.canvas.fillStyle = color.value;
 
   // Return undefined (no return value)
   return ok(undefined);
