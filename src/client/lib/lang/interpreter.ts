@@ -670,7 +670,6 @@ function evaluate_while(
 
   // Keep evaluating while condition is truthy
   while (true) {
-    console.log(`Iteration ${counter}`);
     if (counter > 1000000) {
       return locatedError(
         "Infinite loop protection, passed 1 million iterations",
