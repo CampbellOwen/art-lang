@@ -99,6 +99,8 @@ function evaluate_builtin(
       return evaluate_less_equal(environment, args);
     case "=":
       return evaluate_equal(environment, args);
+    case "if":
+      return evaluate_if(environment, args);
     case "let":
       return evaluate_let(environment, args);
     default:
@@ -517,6 +519,79 @@ function evaluate_equal(
 
   const result: Bool = { type: "boolean", value: true };
   return ok(result);
+}
+
+function evaluate_if(
+  environment: Environment,
+  args: Expr[],
+): Result<Expr, LocatedError> {
+  if (args.length !== 3) {
+    return locatedError(
+      "if requires exactly 3 arguments: (if condition true_expr false_expr)",
+    );
+  }
+
+  const [conditionExpr, trueExpr, falseExpr] = args;
+
+  // Evaluate the condition
+  const conditionResult = evaluate(environment, conditionExpr);
+  if (!isOk(conditionResult)) {
+    return conditionResult;
+  }
+
+  const condition = conditionResult.value;
+  if (!condition) {
+    return locatedError(
+      "Cannot evaluate condition for if statement",
+      conditionExpr.location,
+    );
+  }
+
+  // Determine truthiness of condition
+  let isTruthy = false;
+  switch (condition.type) {
+    case "boolean":
+      isTruthy = condition.value;
+      break;
+    case "number":
+      isTruthy = condition.value !== 0;
+      break;
+    case "string":
+      isTruthy = condition.value !== "";
+      break;
+    default:
+      return locatedError(
+        `Unsupported condition type for if: ${condition.type}`,
+        conditionExpr.location,
+      );
+  }
+
+  // Evaluate and return the appropriate branch
+  if (isTruthy) {
+    const result = evaluate(environment, trueExpr);
+    if (!isOk(result)) {
+      return result;
+    }
+    if (!result.value) {
+      return locatedError(
+        "if true branch produced no result",
+        trueExpr.location,
+      );
+    }
+    return ok(result.value);
+  } else {
+    const result = evaluate(environment, falseExpr);
+    if (!isOk(result)) {
+      return result;
+    }
+    if (!result.value) {
+      return locatedError(
+        "if false branch produced no result",
+        falseExpr.location,
+      );
+    }
+    return ok(result.value);
+  }
 }
 
 function evaluate_let(

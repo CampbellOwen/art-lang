@@ -17,7 +17,7 @@ interface ErrorDisplayInfo {
 
 function App() {
   const [input, setInput] = useState(
-    '(+ 1 2) (* 10 2) (- 10 5 3) (/ 100 5) (< 1 2) (> 1 2) (= 1 1) (= "hello" "hello")',
+    '(+ 1 2) (* 10 2) (- 10 5 3) (/ 100 5) (< 1 2) (> 1 2) (= 1 1) (= "hello" "hello") (if true "yes" "no") (if (> 5 3) 42 99) (if 0 "truthy" "falsy")',
   );
   const [results, setResults] = useState<string[]>([]);
   const [errors, setErrors] = useState<ErrorDisplayInfo[]>([]);
@@ -186,11 +186,29 @@ function App() {
               <strong>Comparison:</strong> &gt; &gt;= &lt; &lt;= =
             </div>
             <div>
-              <strong>Literals:</strong> numbers, "strings", true, false
+              <strong>Control Flow:</strong> if
             </div>
             <div>
-              <strong>Example:</strong> (+ 1 2) (* 3 4) (&gt; 5 3) (= "hello"
-              "world")
+              <strong>Literals:</strong> numbers, "strings", true, false
+            </div>
+            <div style={{ marginTop: "10px" }}>
+              <strong>If Statement Syntax:</strong>
+            </div>
+            <div style={{ marginLeft: "10px", fontSize: "12px" }}>
+              (if condition true_expr false_expr)
+            </div>
+            <div style={{ marginLeft: "10px", fontSize: "12px" }}>
+              • Numbers: 0 is false, others true
+            </div>
+            <div style={{ marginLeft: "10px", fontSize: "12px" }}>
+              • Strings: "" is false, others true
+            </div>
+            <div style={{ marginLeft: "10px", fontSize: "12px" }}>
+              • Booleans: true/false as expected
+            </div>
+            <div style={{ marginTop: "10px" }}>
+              <strong>Examples:</strong> (+ 1 2) (if (&gt; 5 3) "big" "small")
+              (if 0 "yes" "no")
             </div>
           </div>
         </div>
