@@ -124,32 +124,39 @@ class CanvasAdapter implements Canvas {
 
 function App() {
   const [input, setInput] = useState(
-    `(fill (rgb 20 25 40))
+    `; Dark blue background
+(fill (rgb 20 25 40))
 (rect 0 0 width height)
 
+; Pink diagonal lines
 (stroke (rgb 255 100 150))
 (line 0 0 width height)
 (line 0 height width 0)
 
+; Cyan nested squares
 (stroke (rgb 100 255 200))
 (noFill)
 (rect 50 50 200 200)
 (rect 75 75 150 150)
 (rect 100 100 100 100)
 
+; Yellow cross lines
 (stroke (rgb 255 255 100))
 (line (/ width 2) 0 (/ width 2) height)
 (line 0 (/ height 2) width (/ height 2))
 
+; Orange center square
 (fill (rgb 255 150 100))
 (noStroke)
 (rect 125 125 50 50)
 
+; White border
 (stroke "white")
 (rect 20 20 (- width 40) (- height 40))`,
   );
   const [results, setResults] = useState<string[]>([]);
   const [errors, setErrors] = useState<ErrorDisplayInfo[]>([]);
+  const [showResults, setShowResults] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -331,14 +338,36 @@ function App() {
           </div>
         )}
 
-        {results.length > 0 && (
+        {results.length > 0 && showResults && (
           <div className="results-container">
-            <h3 className="results-title">Results:</h3>
+            <div className="results-header">
+              <h3 className="results-title">Results:</h3>
+              <button
+                onClick={() => setShowResults(false)}
+                className="toggle-button"
+              >
+                Hide
+              </button>
+            </div>
             {results.map((result, index) => (
               <div key={index} className="result-item">
                 {result}
               </div>
             ))}
+          </div>
+        )}
+
+        {!showResults && (
+          <div className="results-toggle">
+            <button
+              onClick={() => setShowResults(true)}
+              className="toggle-button show-results-button"
+              disabled={results.length === 0}
+            >
+              {results.length > 0
+                ? `Show Results (${results.length})`
+                : "Results (hidden by default)"}
+            </button>
           </div>
         )}
 
