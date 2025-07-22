@@ -124,7 +124,7 @@ class CanvasAdapter implements Canvas {
 
 function App() {
   const [input, setInput] = useState(
-    '(fill "red") (rect 50 50 100 50) (stroke "blue") (noFill) (rect (/ width 2) 100 80 60) (fill "green") (noStroke) (rect 120 150 60 40) (stroke "purple") (fill "yellow") (rect 10 (- height 100) (- width 100) 80)',
+    '(stroke "red") (line 0 0 width height) (line 0 height width 0) (stroke "blue") (line (/ width 2) 0 (/ width 2) height) (line 0 (/ height 2) width (/ height 2)) (fill "green") (rect 100 100 100 50) (stroke "purple") (line 50 50 250 50) (line 250 50 250 200)',
   );
   const [results, setResults] = useState<string[]>([]);
   const [errors, setErrors] = useState<ErrorDisplayInfo[]>([]);
@@ -336,7 +336,8 @@ function App() {
               <strong>Variables:</strong> let, set, width, height
             </div>
             <div>
-              <strong>Canvas:</strong> stroke, fill, noStroke, noFill, rgb, rect
+              <strong>Canvas:</strong> stroke, fill, noStroke, noFill, rgb,
+              rect, line
             </div>
             <div>
               <strong>Literals:</strong> numbers, "strings", true, false
@@ -386,10 +387,13 @@ function App() {
             <div style={{ marginLeft: "10px", fontSize: "12px" }}>
               • (rect x y width height) - Draw rectangle
             </div>
+            <div style={{ marginLeft: "10px", fontSize: "12px" }}>
+              • (line x1 y1 x2 y2) - Draw line from point to point
+            </div>
             <div style={{ marginTop: "10px" }}>
               <strong>Examples:</strong> (+ 1 2) (if (&gt; 5 3) "big" "small")
               (rgb 255 128 0) (stroke "red") (fill "blue") (rect 10 20 100 50)
-              (rect 0 0 width 20) (rect (- width 50) 0 50 height)
+              (rect 0 0 width 20) (line 0 0 width height) (line 50 50 250 200)
             </div>
             <div
               style={{ marginLeft: "10px", fontSize: "12px", marginTop: "5px" }}
@@ -411,6 +415,12 @@ function App() {
             </div>
             <div style={{ marginLeft: "10px", fontSize: "12px" }}>
               • (rect (- width 50) 0 50 height) - Right border using expressions
+            </div>
+            <div style={{ marginLeft: "10px", fontSize: "12px" }}>
+              • (line 0 0 width height) - Diagonal line using canvas dimensions
+            </div>
+            <div style={{ marginLeft: "10px", fontSize: "12px" }}>
+              • (line 50 50 250 200) - Line from (50,50) to (250,200)
             </div>
           </div>
         </div>

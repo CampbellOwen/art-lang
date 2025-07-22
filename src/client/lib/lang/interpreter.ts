@@ -137,6 +137,8 @@ function evaluate_builtin(
       return evaluate_noFill(environment, args);
     case "rect":
       return evaluate_rect(environment, args);
+    case "line":
+      return evaluate_line(environment, args);
     default:
       return locatedError(`Unimplemented built-in function ${builtinName}`);
   }
@@ -1000,6 +1002,84 @@ function evaluate_rect(
   }
 
   // Stroke if strokeStyle is not "none"
+  if (environment.canvas.strokeStyle !== "none") {
+    environment.canvas.stroke();
+  }
+
+  // Return undefined (no return value)
+  return ok(undefined);
+}
+
+function evaluate_line(
+  environment: Environment,
+  args: Expr[],
+): Result<Expr | undefined, LocatedError> {
+  if (args.length !== 4) {
+    return locatedError(
+      "line requires exactly 4 arguments: (line x1 y1 x2 y2)",
+    );
+  }
+
+  const [x1Expr, y1Expr, x2Expr, y2Expr] = args;
+
+  // Evaluate x1 coordinate
+  const x1Result = evaluate(environment, x1Expr);
+  if (!isOk(x1Result)) {
+    return x1Result;
+  }
+  const x1 = x1Result.value;
+  if (!x1 || x1.type !== "number") {
+    return locatedError(
+      `line x1 coordinate must be a number, got ${x1?.type || "undefined"}`,
+      x1Expr.location,
+    );
+  }
+
+  // Evaluate y1 coordinate
+  const y1Result = evaluate(environment, y1Expr);
+  if (!isOk(y1Result)) {
+    return y1Result;
+  }
+  const y1 = y1Result.value;
+  if (!y1 || y1.type !== "number") {
+    return locatedError(
+      `line y1 coordinate must be a number, got ${y1?.type || "undefined"}`,
+      y1Expr.location,
+    );
+  }
+
+  // Evaluate x2 coordinate
+  const x2Result = evaluate(environment, x2Expr);
+  if (!isOk(x2Result)) {
+    return x2Result;
+  }
+  const x2 = x2Result.value;
+  if (!x2 || x2.type !== "number") {
+    return locatedError(
+      `line x2 coordinate must be a number, got ${x2?.type || "undefined"}`,
+      x2Expr.location,
+    );
+  }
+
+  // Evaluate y2 coordinate
+  const y2Result = evaluate(environment, y2Expr);
+  if (!isOk(y2Result)) {
+    return y2Result;
+  }
+  const y2 = y2Result.value;
+  if (!y2 || y2.type !== "number") {
+    return locatedError(
+      `line y2 coordinate must be a number, got ${y2?.type || "undefined"}`,
+      y2Expr.location,
+    );
+  }
+
+  // Draw the line using path-based approach
+  environment.canvas.beginPath();
+  environment.canvas.moveTo(x1.value, y1.value);
+  environment.canvas.lineTo(x2.value, y2.value);
+
+  // Only stroke if strokeStyle is not "none" (lines don't have fill)
   if (environment.canvas.strokeStyle !== "none") {
     environment.canvas.stroke();
   }
