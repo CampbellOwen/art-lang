@@ -61,8 +61,14 @@ function parse_inner(
 
   skipWhitespace(it);
 
-  const next = it.peek();
+  let next = it.peek();
 
+  // comment
+  if (next === ";") {
+    it.skipWhile((c) => c !== "\n");
+    skipWhitespace(it);
+    next = it.peek();
+  }
   if (next === "(") {
     return parse_list(it);
   }
